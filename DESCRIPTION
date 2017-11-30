@@ -14,9 +14,9 @@ Description: A package that aims to help anyone working with cancer data to
 Encoding: UTF-8
 LazyData: true
 Imports: DT, plyr, dplyr, caret, bigmemory,
-  foreach
+  foreach, readr
 Depends: DT, plyr, dplyr, caret, bigmemory,
-  foreach
+  foreach, readr
 Suggests: readr, stringr, tibble, devtools,
   compare, purrr, tidyr, glmnetUtils, biglasso,
   biganalytics, ggplot2, doParallel,
