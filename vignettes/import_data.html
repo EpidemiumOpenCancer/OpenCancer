@@ -74,7 +74,16 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 
 
-<p>This vignette presents the methodology that allows to import Epidemium data and merge</p>
+<div id="requirement" class="section level1">
+<h1>Requirement</h1>
+<p>This <code>Vignette</code> presents the methodology that allows to import Epidemium data and merge them. It is assumed following <a href="http://qa.epidemium.cc/data/epidemiology_dataset/">Epidemium data</a> are <strong>stored in the working directory</strong>:</p>
+<ul>
+<li><code>Faostat_Data.csv</code></li>
+<li><code>Ilostat_Data.csv</code></li>
+<li><code>training_IARC.csv</code></li>
+<li><code>WorldBank_Data.csv</code></li>
+</ul>
+</div>
 <div id="importing-separately-dataframes" class="section level1">
 <h1>Importing separately dataframes</h1>
 <p><code>csv</code> files can be imported by the use of the <code>import_*</code> functions in the <code>OpenCancer</code> package. Data can be imported from an url or from a file stored in the user computer.</p>
@@ -86,7 +95,7 @@ datadir &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class
 <h2>Importing covariates</h2>
 <p>The import functions share the same structure. The parameters <code>colstokeep</code> allow to only keep a few variables. If <code>colstokeep = NULL</code>, all variables are kept in memory. We will keep only first 100 variables in each dataframe</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-df_FAO &lt;-<span class="st"> </span><span class="kw">import_FAO</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>)
+df_FAO &lt;-<span class="st"> </span><span class="kw">import_FAO</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>, <span class="dt">fromURL =</span> T)
 knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(df_FAO[<span class="op">!</span><span class="kw">is.na</span>(df_FAO[,<span class="dv">10</span>]),<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]))</code></pre></div>
 <table>
 <thead>
@@ -179,7 +188,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 </tbody>
 </table>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-df_WB &lt;-<span class="st"> </span><span class="kw">import_WB</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>)
+df_WB &lt;-<span class="st"> </span><span class="kw">import_WB</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>, <span class="dt">fromURL =</span> T)
 knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(df_WB[<span class="op">!</span><span class="kw">is.na</span>(df_WB[,<span class="dv">6</span>]),<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>]))</code></pre></div>
 <table>
 <thead>
@@ -243,7 +252,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 </tr>
 </tbody>
 </table>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df_ILO &lt;-<span class="st"> </span><span class="kw">import_ILO</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df_ILO &lt;-<span class="st"> </span><span class="kw">import_ILO</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>, <span class="dt">fromURL =</span> T)
 knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(df_ILO[<span class="op">!</span><span class="kw">is.na</span>(df_ILO[,<span class="dv">6</span>]),<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>]))</code></pre></div>
 <table>
 <thead>
@@ -311,9 +320,20 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 <div id="importing-training-data" class="section level2">
 <h2>Importing training data</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-<span class="co">#df_training &lt;- import_training(path = datadir, colstokeep = NULL)</span>
-df_training &lt;-<span class="st"> </span><span class="kw">import_training</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="ot">NULL</span>,
-                               <span class="dt">filename =</span> <span class="st">&quot;training_IARC.csv&quot;</span>)</code></pre></div>
+df_training &lt;-<span class="st"> </span><span class="ot">NULL</span>
+attempt &lt;-<span class="st"> </span><span class="dv">0</span>
+
+<span class="cf">while</span>(<span class="kw">is.null</span>(df_training) <span class="op">&amp;&amp;</span><span class="st"> </span>attempt <span class="op">&lt;=</span><span class="st"> </span><span class="dv">5</span>) {
+  attempt &lt;-<span class="st"> </span>attempt <span class="op">+</span><span class="st"> </span><span class="dv">1</span>
+  <span class="kw">try</span>(
+    df_training &lt;-<span class="st"> </span><span class="kw">import_training</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="ot">NULL</span>,
+                                   <span class="dt">filename =</span> <span class="st">&quot;training_IARC.csv&quot;</span>,
+                                   <span class="dt">fromURL =</span> <span class="ot">TRUE</span>,
+                                   <span class="dt">url =</span> <span class="st">&quot;https://github.com/linogaliana/OpenCancer/raw/master/vignettes/inst/training_IARC.csv&quot;</span>)
+      )
+}
+
+<span class="cf">if</span> (attempt<span class="op">==</span><span class="dv">5</span>) <span class="kw">stop</span>(<span class="st">&quot;Fetching data failed 5 times: try downloading data and set from URL=FALSE&quot;</span>)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(<span class="kw">na.omit</span>(df_training)))</code></pre></div>
 <table>
 <thead>
@@ -403,6 +423,8 @@ df_label &lt;-<span class="st"> </span><span class="kw">import_coding</span>()</
 <h2>Importing joining keys</h2>
 <p>To ensure data will be consistently merged, we import the <code>creation zonier.xls</code> file. All countries in the FAO, ILO and World Bank database should thus be assigned a unique and consistent key, a necessary step before merging dataframes.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+url &lt;-<span class="st"> &quot;https://github.com/linogaliana/OpenCancer/raw/master/vignettes/inst/creation%20zonier.xls&quot;</span>
+<span class="kw">download.file</span>(url,<span class="dt">destfile =</span> <span class="kw">paste0</span>(datadir,<span class="st">&quot;/creation zonier.xls&quot;</span>),<span class="dt">mode =</span> <span class="st">&quot;wb&quot;</span>)
 codes &lt;-<span class="st"> </span>readxl<span class="op">::</span><span class="kw">read_excel</span>(<span class="dt">path =</span> <span class="kw">paste0</span>(datadir,<span class="st">&quot;/creation zonier.xls&quot;</span>),
                             <span class="dt">sheet =</span> <span class="st">&quot;Transco_Country&quot;</span>)
 
@@ -678,23 +700,23 @@ knitr<span class="op">::</span><span class="kw">kable</span>(df,<span class="dt"
 <tbody>
 <tr class="odd">
 <td align="right">1980</td>
-<td align="right">0.3304249</td>
+<td align="right">1.1655773</td>
 </tr>
 <tr class="even">
 <td align="right">1983</td>
-<td align="right">0.3057227</td>
+<td align="right">-0.2289347</td>
 </tr>
 <tr class="odd">
 <td align="right">1984</td>
-<td align="right">-0.2666847</td>
+<td align="right">1.3445491</td>
 </tr>
 <tr class="even">
 <td align="right">1985</td>
-<td align="right">-0.2316558</td>
+<td align="right">-0.2093490</td>
 </tr>
 <tr class="odd">
 <td align="right">1990</td>
-<td align="right">0.8432795</td>
+<td align="right">0.8240783</td>
 </tr>
 </tbody>
 </table>
@@ -713,7 +735,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(df, <span class="dt
 <tbody>
 <tr class="odd">
 <td align="right">1980</td>
-<td align="right">0.3304249</td>
+<td align="right">1.1655773</td>
 </tr>
 <tr class="even">
 <td align="right">1981</td>
@@ -725,15 +747,15 @@ knitr<span class="op">::</span><span class="kw">kable</span>(df, <span class="dt
 </tr>
 <tr class="even">
 <td align="right">1983</td>
-<td align="right">0.3057227</td>
+<td align="right">-0.2289347</td>
 </tr>
 <tr class="odd">
 <td align="right">1984</td>
-<td align="right">-0.2666847</td>
+<td align="right">1.3445491</td>
 </tr>
 <tr class="even">
 <td align="right">1985</td>
-<td align="right">-0.2316558</td>
+<td align="right">-0.2093490</td>
 </tr>
 <tr class="odd">
 <td align="right">1986</td>
@@ -753,7 +775,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(df, <span class="dt
 </tr>
 <tr class="odd">
 <td align="right">1990</td>
-<td align="right">0.8432795</td>
+<td align="right">0.8240783</td>
 </tr>
 </tbody>
 </table>
@@ -962,6 +984,26 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 </tr>
 <tr class="even">
 <td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="even">
+<td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -976,38 +1018,18 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">0</td>
 <td align="right">1</td>
+<td align="right">0</td>
 <td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="right">0</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">1</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
 <td align="right">0</td>
 </tr>
 </tbody>

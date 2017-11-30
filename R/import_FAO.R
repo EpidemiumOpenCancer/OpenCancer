@@ -126,7 +126,11 @@ import_training <- function(path = getwd(),filename = "training.csv",
     if (!is.null(colstokeep)) df_training <- df_training[,colstokeep]
 
   } else{
-    df_training <- readr::read_txt(url)
+    if (stringr::str_detect(url,"\\.csv$")){
+      df_training <- readr::read_csv2(url)
+    } else{
+      df_training <- readr::read_txt(url, col_names = F)
+    }
     if (!is.null(colstokeep)) df_training <- df_training[,colstokeep]
   }
 

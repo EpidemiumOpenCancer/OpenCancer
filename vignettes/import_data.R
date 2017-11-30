@@ -14,24 +14,36 @@ datadir <- paste0(getwd(),"/inst")
 
 ## ---- message=FALSE,warning=FALSE----------------------------------------
 
-df_FAO <- import_FAO(path = datadir, colstokeep = 1:100)
+df_FAO <- import_FAO(path = datadir, colstokeep = 1:100, fromURL = T)
 knitr::kable(head(df_FAO[!is.na(df_FAO[,10]),1:10]))
 
 
 ## ---- message=FALSE,warning=FALSE----------------------------------------
 
-df_WB <- import_WB(path = datadir, colstokeep = 1:100)
+df_WB <- import_WB(path = datadir, colstokeep = 1:100, fromURL = T)
 knitr::kable(head(df_WB[!is.na(df_WB[,6]),1:6]))
 
 ## ---- message=FALSE,warning=FALSE----------------------------------------
-df_ILO <- import_ILO(path = datadir, colstokeep = 1:100)
+df_ILO <- import_ILO(path = datadir, colstokeep = 1:100, fromURL = T)
 knitr::kable(head(df_ILO[!is.na(df_ILO[,6]),1:6]))
 
 ## ---- message=FALSE,warning=FALSE----------------------------------------
 
-#df_training <- import_training(path = datadir, colstokeep = NULL)
-df_training <- import_training(path = datadir, colstokeep = NULL,
-                               filename = "training_IARC.csv")
+df_training <- NULL
+attempt <- 0
+
+while(is.null(df_training) && attempt <= 5) {
+  attempt <- attempt + 1
+  try(
+    df_training <- import_training(path = datadir, colstokeep = NULL,
+                                   filename = "training_IARC.csv",
+                                   fromURL = TRUE,
+                                   url = "https://github.com/linogaliana/OpenCancer/raw/master/vignettes/inst/training_IARC.csv")
+      )
+}
+
+if (attempt==5) stop("Fetching data failed 5 times: try downloading data and set from URL=FALSE")
+
 
 ## ---- message=FALSE,warning=FALSE----------------------------------------
 knitr::kable(head(na.omit(df_training)))
@@ -43,6 +55,8 @@ df_label <- import_coding()
 
 ## ---- message=FALSE,warning=FALSE----------------------------------------
 
+url <- "https://github.com/linogaliana/OpenCancer/raw/master/vignettes/inst/creation%20zonier.xls"
+download.file(url,destfile = paste0(datadir,"/creation zonier.xls"),mode = "wb")
 codes <- readxl::read_excel(path = paste0(datadir,"/creation zonier.xls"),
                             sheet = "Transco_Country")
 

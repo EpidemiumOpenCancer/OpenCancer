@@ -18,7 +18,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette presents the methodology that allows to import Epidemium data and merge 
+# Requirement
+
+This `Vignette` presents the methodology that allows to import Epidemium data and merge them. It is assumed following [Epidemium data](http://qa.epidemium.cc/data/epidemiology_dataset/) are **stored in the working directory**:
+
+* `Faostat_Data.csv`
+* `Ilostat_Data.csv`
+* `training_IARC.csv`
+* `WorldBank_Data.csv`
 
 # Importing separately dataframes
 
@@ -39,19 +46,19 @@ The import functions share the same structure. The parameters `colstokeep` allow
 
 ```{r, message=FALSE,warning=FALSE}
 
-df_FAO <- import_FAO(path = datadir, colstokeep = 1:100)
+df_FAO <- import_FAO(path = datadir, colstokeep = 1:100, fromURL = T)
 knitr::kable(head(df_FAO[!is.na(df_FAO[,10]),1:10]))
 
 ```
 
 ```{r, message=FALSE,warning=FALSE}
 
-df_WB <- import_WB(path = datadir, colstokeep = 1:100)
+df_WB <- import_WB(path = datadir, colstokeep = 1:100, fromURL = T)
 knitr::kable(head(df_WB[!is.na(df_WB[,6]),1:6]))
 ```
 
 ```{r, message=FALSE,warning=FALSE}
-df_ILO <- import_ILO(path = datadir, colstokeep = 1:100)
+df_ILO <- import_ILO(path = datadir, colstokeep = 1:100, fromURL = T)
 knitr::kable(head(df_ILO[!is.na(df_ILO[,6]),1:6]))
 ```
 
@@ -59,9 +66,21 @@ knitr::kable(head(df_ILO[!is.na(df_ILO[,6]),1:6]))
 
 ```{r, message=FALSE,warning=FALSE}
 
-#df_training <- import_training(path = datadir, colstokeep = NULL)
-df_training <- import_training(path = datadir, colstokeep = NULL,
-                               filename = "training_IARC.csv")
+df_training <- NULL
+attempt <- 0
+
+while(is.null(df_training) && attempt <= 5) {
+  attempt <- attempt + 1
+  try(
+    df_training <- import_training(path = datadir, colstokeep = NULL,
+                                   filename = "training_IARC.csv",
+                                   fromURL = TRUE,
+                                   url = "https://github.com/linogaliana/OpenCancer/raw/master/vignettes/inst/training_IARC.csv")
+      )
+}
+
+if (attempt==5) stop("Fetching data failed 5 times: try downloading data and set from URL=FALSE")
+
 ```
 
 ```{r, message=FALSE,warning=FALSE}
@@ -86,6 +105,8 @@ To ensure data will be consistently merged, we import the `creation zonier.xls` 
 
 ```{r, message=FALSE,warning=FALSE}
 
+link <- "https://github.com/linogaliana/OpenCancer/raw/master/vignettes/inst/creation%20zonier.xls"
+download.file(link,destfile = paste0(datadir,"/creation zonier.xls"),mode = "wb")
 codes <- readxl::read_excel(path = paste0(datadir,"/creation zonier.xls"),
                             sheet = "Transco_Country")
 

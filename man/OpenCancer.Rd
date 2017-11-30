@@ -4,12 +4,16 @@
 \name{OpenCancer}
 \alias{OpenCancer}
 \alias{OpenCancer-package}
-\title{OpenCancer: A statistical package for understanding colon cancer}
+\title{OpenCancer: Build statistical models to understand cancer causes}
 \description{
-This package provides several convenient functions to estimate the
-factors that can cause colon cancer
-}
-\details{
+A package that aims to help anyone working with cancer data to
+import Epidemium dataset
+and build robust
+statistical models. OpenCancer package first goal is to securize the building
+of a world cancer dataset by an open-source program. OpenCancer dataset
+package provides several functions to build statistical
+modelling with Epidemium data,
+taking advantage of the possibilities offered by C++ pointers with large datasets.
 To learn more about the package, start with the
 vignettes: \code{browseVignettes(package = "OpenCancer")}
 }
