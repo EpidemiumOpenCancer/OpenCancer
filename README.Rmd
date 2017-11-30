@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 To install the package,
 
 ```{r, eval=FALSE}
-
+install.packages("devtools")
 devtools::install_github("linogaliana/OpenCancer")
 
 ``` 
