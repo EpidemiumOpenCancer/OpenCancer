@@ -1,17 +1,18 @@
 ---
-title: "OpenCancer package: colon cancer incidence"
+title: "OpenCancer package: cancer incidence"
 author: "Lino Galiana"
 date: "`r format(Sys.Date(), format = '%d %B %Y') `"
 output:
   html_document:
     keep_md: true
+  github_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-`OpenCancer` package installation might fail when `CARET` is not already installed in the computer. As it is stated in (CARET documentation)[https://cran.r-project.org/web/packages/caret/vignettes/caret.pdf], to install it, you should run
+`OpenCancer` package installation might fail when `CARET` is not already installed in the computer. As it is stated in [CARET documentation](https://cran.r-project.org/web/packages/caret/vignettes/caret.pdf), to install it, you should run
 
 ```{r, eval=FALSE}
 
@@ -19,7 +20,7 @@ install.packages("caret", dependencies = c("Depends", "Suggests"))
 
 ``` 
 
-Once `CARET` installed, you can run
+which might be quite long. Once `CARET` installed, you can run
 
 ```{r, eval=FALSE}
 
@@ -35,10 +36,12 @@ devtools::install_github("linogaliana/OpenCancer")
 * Perform feature selection
 * Apply statistical models on selected features
 
-Vignettes have been written to help any users working with `OpenCancer`:
+Vignettes have been written to help any users working with `OpenCancer` and can be accessed using `browseVignettes("OpenCancer")`
 
-* [Import Epidemium data and build training table](/vignettes/import_data.Rmd)
-* [Use pointers to build statistical models](/vignettes/estimation_pointers.Rmd)
+* [Import Epidemium data and build training table](/vignettes/import_data.Rmd). HTML version can be found [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/import_data.html)
+* [Use pointers to build statistical models](/vignettes/estimation_pointers.Rmd). HTML version can be found [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/estimation_pointers.html)
+
+If you want to see this `README` with the code output in HTML, go [there](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/README.html)
 
 It might be hard to work with Epidemium data because they require lots of RAM when working with R. It is a challenge to take advantage of the statistical power of R packages without being limited by the R memory handling system. Many functions of the `OpenCancer`, relying on the `bigmemory` package, implement memory efficient techniques based on C++ pointer.
 
