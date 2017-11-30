@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 # Requirement
 
-This `Vignette` presents the methodology that allows to import Epidemium data and merge them. It is assumed following [Epidemium data](http://qa.epidemium.cc/data/epidemiology_dataset/) are **stored in the working directory**:
+This `Vignette` presents the methodology that allows to import Epidemium data and merge them. It is assumed following [Epidemium data](http://qa.epidemium.cc/data/epidemiology_dataset/) are stored in the working directory
 
 * `Faostat_Data.csv`
 * `Ilostat_Data.csv`
