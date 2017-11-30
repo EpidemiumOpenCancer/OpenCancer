@@ -28,3 +28,5 @@ Suggests: readr, stringr, tibble, devtools,
 RoxygenNote: 6.0.1
 VignetteBuilder: knitr
 License: GNU GPLv3
+URL: https://github.com/linogaliana/OpenCancer
+BugReports: https://github.com/linogaliana/OpenCancer/issues
