@@ -5,7 +5,6 @@ date: "`r format(Sys.Date(), format = '%d %B %Y') `"
 output:
   html_document:
     keep_md: true
-  github_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -128,7 +127,7 @@ summary(pooledOLS)
 
 ```
 
-```{r, message = F, warning=F, eval = T}
+```{r, message = F, warning=F, eval = F}
 
 DTsummary.biglm(pooledOLS)$coefftab
 DTsummary.biglm(pooledOLS)$modeltab
@@ -156,10 +155,12 @@ DTsummary.biglm(panelOLS[[2]])
 Once features have been selected, using pointers is no longer so relevant since the dataset with a few columns not being so large. It is thus possible, once features have been selected, to import data with selected features back in the memory. `recover_data` has been designed for that. Taking a pointer as input, it performs LASSO to select feature and imports relevant variables back in the memory as a `tibble`. 
 
 ```{r, message = F, warning=F, eval = T}
-
 df <- unique(recover_data(X))
-DT::datatable(df[sample.int(nrow(df),10),1:7])
+```
 
+
+```{r, message = F, warning=F, eval = F}
+DT::datatable(df[sample.int(nrow(df),10),1:7])
 ```
 
 It is henceforth possible to use standard statistical and visualization tools. For instance, assume we want to perform random forest using `CARET`
