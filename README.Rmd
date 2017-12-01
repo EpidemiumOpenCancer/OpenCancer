@@ -2,14 +2,14 @@
 title: "OpenCancer package: cancer incidence"
 author: "Lino Galiana"
 date: "`r format(Sys.Date(), format = '%d %B %Y') `"
-output:
-  html_document:
-    keep_md: true
+output: github_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+# Installing `OpenCancer`
 
 `OpenCancer` package installation might fail when `CARET` is not already installed in the computer. As it is stated in [CARET documentation](https://cran.r-project.org/web/packages/caret/vignettes/caret.pdf), to install it, you should run
 
@@ -19,7 +19,7 @@ install.packages("caret", dependencies = c("Depends", "Suggests"))
 
 ``` 
 
-which might be quite long. Once `CARET` installed, you can run
+This installation process might be quite long. Once `CARET` have been installed, you can run
 
 ```{r, eval=FALSE}
 
@@ -28,7 +28,9 @@ devtools::install_github("linogaliana/OpenCancer")
 
 ``` 
 
-`OpenCancer` package has been designed to help anyone wanting to work on cancer data to build a dataset. As an example, we use colon cancer data. However, functions are general enough to be applied to any similar data. One of the main challenges of the `Epidemium` dataset is that it requires high-dimensional statistical techniques. `OpenCancer` package allows to
+By default, `Vignettes` are not built. If you want to build `Vignettes`, use `devtools::install_github("linogaliana/OpenCancer", build_vignettes = TRUE)`. However, `Vignettes` building might be time-consuming. You can find them [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/import_data.html) and [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/estimation_pointers.html)
+
+`OpenCancer` package has been designed to help anyone wanting to work on cancer data to build a dataset. As an example, we use colon cancer data. However, functions are general enough to be applied to any similar data (change `C18` code to the one you want when using `import_training`). One of the main challenges of the `Epidemium` dataset is that it requires high-dimensional statistical techniques. `OpenCancer` package allows to
 
 * Easily import and merge [Epidemium](http://qa.epidemium.cc/data/epidemiology_dataset/) datasets
 * Build a clean training table
@@ -44,11 +46,12 @@ If you want to see this `README` with the code output in HTML, go [there](http:/
 
 It might be hard to work with Epidemium data because they require lots of RAM when working with R. It is a challenge to take advantage of the statistical power of R packages without being limited by the R memory handling system. Many functions of the `OpenCancer`, relying on the `bigmemory` package, implement memory efficient techniques based on C++ pointer.
 
-`OpenCancer` package has been designed such that it is possible to work with pointers (`big.*` functions) or apply equivalent functions when working with standard dataframes (same functions names without `big.*` prefix). In this tutorial, we will use pointers since it is less standard and might require some explanations.
+`OpenCancer` package has been designed such that it is possible to work with pointers (`big.*` functions) or apply equivalent functions when working with standard dataframes (same functions names without `big.*` prefix). In this tutorial, we will use pointers since it is less standard and might require some explanations. More examples are available [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/estimation_pointers.html)
+
 
 # Importing Epidemium data using pointers
 
-You can find [here](/vignettes/import_data.Rmd) a `Vignette` describing how to create the clean training table stored as a `csv`. After installing `OpenCancer` package, we import training data using pointers
+You can find [here](/vignettes/import_data.Rmd) a `Vignette` describing how to create a clean training table. After installing `OpenCancer` package, we import training data, stored as `csv`, using pointers
 
 ```{r readbigmatrix, include = TRUE,message = F, warning=F, eval = T}
 library(OpenCancer)
@@ -63,7 +66,9 @@ This `markdown` presents a standard methodology :
 * Feature selection using LASSO
 * Linear regression on selected features
 
-`Epidemium` data are multi-level panel data. An individual unit is defined by a series of variables that are overlapping levels (country, region, sex, age levels and sometimes ethnicity). `OpenCancer` functions allow to apply this methodology on groups that are defined independently by a series of variables. Some function executions can be parallelized. The main interest of using pointers rather than dataframes is that data are never imported in memory, avoiding to sature computer's RAM. 
+`Epidemium` data are multi-level panel data. An individual unit is defined by a series of variables that are overlapping levels (*country, region, sex, age levels and sometimes ethnicity*). `OpenCancer` functions allow to apply this methodology on groups that are defined independently by a series of variables. Some function executions can be parallelized.
+
+The main interest of using pointers rather than dataframes is that data are never imported in memory, avoiding to sature computer's RAM. 
 
 
 # Feature selection
@@ -72,7 +77,7 @@ Feature selection is performed using LASSO. Given a penalization parameter $\lam
 $$\widehat{\beta}\in\arg\min_{\beta\ \in\mathbb{R}^p}\ \frac{1}{2}\ \left|\right|y-X\beta\left|\right|_2^2 + \lambda ||\beta||_1 $$
 using standard matrix notations. The $\lambda$ parameter is of particular importance. Its value determines the sparsity of the model: the higher $\lambda$ is, the stronger the $\ell_1$ constraint is and the more $\beta$ coefficients will be zero.
 
-The optimal set of parameters can be selected using cross validation (`OpenCancer` package also allows not to perform cross validation but is not recommended).
+The optimal set of parameters can be selected using cross validation (though not recommended, `OpenCancer` package also allows not to perform cross validation).
 
 `big.simplelasso` has been designed to perform LASSO using `biglasso` package (for the non-pointers version, `simplelasso` the `glmnetUtils` is used). Assume we want to use a pooled model, i.e. we do not define independent groups. In that case, the following command can be used
 
@@ -101,7 +106,9 @@ summary(lassomodel$model)
 
 ```
 
-In that case, we see that from `r length(lassomodel$model$fit$beta@i)` variables, LASSO selects `r sum(lassomodel$coeff != 0)` variables (`r sum(lassomodel$coeff != 0)` variables and a constant). If parallelization is wanted, assuming one core is let aside of computations,
+From an initial number of parameters of `r nrow(lassomodel$coeff)`, LASSO selects `r length(lassomodel$coeff@x)-1` variables
+
+If parallelization is wanted, assuming one core is let aside of computations,
 
 ```{r, message = F, warning=F, eval = F}
 
@@ -127,10 +134,12 @@ summary(pooledOLS)
 
 ```
 
+The `DTsummary.biglm` can be used to produce an HTML summary table.
+
 ```{r, message = F, warning=F, eval = F}
 
-DTsummary.biglm(pooledOLS)$coefftab
-DTsummary.biglm(pooledOLS)$modeltab
+DTsummary.biglm(pooledOLS)
+DTsummary.biglm(pooledOLS)
 
 ```
 
@@ -154,7 +163,7 @@ DTsummary.biglm(panelOLS[[2]])
 
 Once features have been selected, using pointers is no longer so relevant since the dataset with a few columns not being so large. It is thus possible, once features have been selected, to import data with selected features back in the memory. `recover_data` has been designed for that. Taking a pointer as input, it performs LASSO to select feature and imports relevant variables back in the memory as a `tibble`. 
 
-```{r, message = F, warning=F, eval = T}
+```{r, message = F, warning=F, eval = F}
 df <- unique(recover_data(X))
 ```
 
