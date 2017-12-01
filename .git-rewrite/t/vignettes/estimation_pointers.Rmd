@@ -1,0 +1,145 @@
+---
+title: "Variable selection and estimation using pointers"
+author: "Lino Galiana"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using pointers with OpenCancer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette is the occasion to explore the possibilities offered by the `bigmemory` package family to efficiently work with Epidemium data. 
+
+We will assume data have been imported using the `OpenCancer` package (see dedicated vignette). A csv file has been stored in a subdirectory `inst` of the current working directory. To see an example, use `/vignettes/inst`, in the package directory. This example dataframe will show the interest of working with C++ pointers rather than dataframes imported in R memory (hence in RAM).
+
+```{r loadpackage, message=FALSE,warning=FALSE}
+
+library(OpenCancer)
+datadir <- paste0(getwd(),"/inst")
+
+```
+
+
+# Variable selection by LASSO
+
+```{r readbigmatrix, include = TRUE,message = F, warning=F}
+
+X <- bigmemory::read.big.matrix(paste0(datadir,"/exampledf.csv"), header = TRUE)
+
+```
+
+The matrix is not explicitly imported in R. `X` is a C++ pointer, a trick made possible by `bigmemory` package. As any `big.matrix` object, it is possible to access `X` content by importing it in the RAM. Working with pointers is a huge advantage in terms of memory:
+
+```{r, include = FALSE, eval=FALSE}
+
+pryr::mem_used(X)
+
+```
+
+The memory gain comes has a cost in terms of flexibility since working with pointers requires C++ functions. However, a series of package (mostly `biglasso` and `biganalytics`) allow to apply statistical functions to pointers.
+
+The `big.simplelasso` function we created has been designed to perform a feature selection on an OpenCancer dataframes that is imported as a pointer. Assuming our explained variable is called `'incidence'` (default) and we want to perform a cross-validation on 5 folds
+
+```{r bigsimplelasso, message = F, warning=F}
+
+pooledLASSO <- big.simplelasso(X,yvar = 'incidence', labelvar = c("cancer", "age",
+  "Country_Transco", "year", "area.x", "area.y"), crossvalidation = T,
+  nfolds = 5, returnplot = F)
+summary(pooledLASSO$model)
+
+
+```
+
+`labelvar` argument is here to exclude these variables from the set of features included in the LASSO. 
+
+```{r, message = F, warning=F, fig.width = 10, fig.height=7}
+
+plot(pooledLASSO$model)
+
+```
+
+In that case, we see that from `r length(pooledLASSO$model$fit$beta@i)` variables, LASSO selects `r sum(pooledLASSO$coeff != 0)` variables.
+
+Now, let's say we want to make a feature selection for each age classes separately. While a standard dataframe would allow to use `group_by + do` or `nest + mutate`, we must find another method for pointers. The `bigsplit` function is useful for such a project. As an example, we only keep three groups,
+
+```{r, message = F, warning=F}
+
+groupingvar <- c('age')
+indices <- bigtabulate::bigsplit(X,groupingvar, splitcol=NA_real_)
+indices <- indices[5:8]
+
+# ESTIMATE MODEL WITH PARALLELIZED GROUPS
+model <- foreach(i = indices, .combine='list', .errorhandling = 'pass',
+                       .packages = c("bigmemory","biglasso","biganalytics",
+                                     'OpenCancer')) %do% {
+                         return(
+                           big.simplelasso(bigmemory::deepcopy(X, rows = i),
+                                           yvar = 'incidence',
+                                           labelvar = c("cancer", 'sex',
+                                                        "Country_Transco", "year", "area.x", "area.y"),
+                                           crossvalidation = T, nfolds = 5, returnplot = F)
+                           
+                         )
+                       }
+```
+
+Results are stored as a list. To easily access its components, we need to arrange it a little bit
+
+```{r, message = F, warning=F}
+
+x <- list()
+x[[1]] <- model[[2]]
+for (i in 2:length(indices)){
+    eval(parse(text = paste0("x[[",i,"]] <- ",
+                             "model",paste(rep("[[1]]",i-1), collapse = ""),"[[2]]")))
+}
+model <- x
+
+```
+
+Our three groups results is
+
+```{r, message = F, warning=F}
+
+summary(model[[1]]$model)
+summary(model[[2]]$model)
+summary(model[[3]]$model)
+    
+```
+
+# Feature selection and linear regression on selected features
+
+`big.model.FElasso` performs feature selection on a `big.matrix` and returns a linear regression with selected features. 
+
+
+```{r, message = F, warning=F}
+# POOLED OLS
+
+pooledOLS <- big.model.FElasso(X,yvar = "incidence",returnplot = F,
+                               relabel = T)
+
+DTsummary.biglm(pooledOLS)$coefftab
+DTsummary.biglm(pooledOLS)$modeltab
+```
+
+It is also possible to perform regressions by group using `groupingvar` argument. In that case, 
+
+```{r, message = F, warning=F, eval = F}
+
+model <- big.model.FElasso(X,yvar = "incidence",
+                              groupingvar = c('sex','age'),
+                              returnplot = F,
+                           relabel = T)
+
+DTsummary.biglm(model[[2]])$coefftab
+DTsummary.biglm(model[[2]])$modeltab
+```
+

@@ -1,0 +1,166 @@
+---
+title: "OpenCancer package: colon cancer incidence"
+author: "Lino Galiana"
+date: "`r format(Sys.Date(), format = '%d %B %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+To install the package,
+
+```{r, eval=FALSE}
+
+devtools::install_github("linogaliana/OpenCancer")
+
+``` 
+
+`OpenCancer` package has been designed to help anyone wanting to work on cancer data to build a dataset. As an example, we use colon cancer data. However, functions are general enough to be applied to any similar data. One of the main challenges of the `Epidemium` dataset is that it requires high-dimensional statistical techniques. `OpenCancer` package allows to
+
+* Easily import and merge [Epidemium](http://qa.epidemium.cc/data/epidemiology_dataset/) datasets
+* Build a clean training table
+* Perform feature selection
+* Apply statistical models on selected features
+
+Vignettes have been written to help any users working with `OpenCancer`:
+
+* [Import Epidemium data and build training table](/vignettes/import_data.Rmd)
+* [Use pointers to build statistical models](/vignettes/estimation_pointers.Rmd)
+
+It might be hard to work with Epidemium data because they require lots of RAM when working with R. It is a challenge to take advantage of the statistical power of R packages without being limited by the R memory handling system. Many functions of the `OpenCancer`, relying on the `bigmemory` package, implement memory efficient techniques based on C++ pointer.
+
+`OpenCancer` package has been designed such that it is possible to work with pointers (`big.*` functions) or apply equivalent functions when working with standard dataframes (same functions names without `big.*` prefix). In this tutorial, we will use pointers since it is less standard and might require some explanations.
+
+# Importing Epidemium data using pointers
+
+You can find [here](/vignettes/import_data.Rmd) a `Vignette` describing how to create the clean training table stored as a `csv`. After installing `OpenCancer` package, we import training data using pointers
+
+```{r readbigmatrix, include = TRUE,message = F, warning=F, eval = T}
+library(OpenCancer)
+datadir <- paste0(getwd(),"/vignettes/inst")
+
+X <- bigmemory::read.big.matrix(paste0(datadir,"/exampledf.csv"), header = TRUE)
+
+```
+
+This `markdown` presents a standard methodology :
+
+* Feature selection using LASSO
+* Linear regression on selected features
+
+`Epidemium` data are multi-level panel data. An individual unit is defined by a series of variables that are overlapping levels (country, region, sex, age levels and sometimes ethnicity). `OpenCancer` functions allow to apply this methodology on groups that are defined independently by a series of variables. Some function executions can be parallelized. The main interest of using pointers rather than dataframes is that data are never imported in memory, avoiding to sature computer's RAM. 
+
+
+# Feature selection
+
+Feature selection is performed using LASSO. Given a penalization parameter $\lambda$ and a set of $p$ explanatory variables, we want to solve the following program 
+$$\widehat{\beta}\in\arg\min_{\beta\ \in\mathbb{R}^p}\ \frac{1}{2}\ \left|\right|y-X\beta\left|\right|_2^2 + \lambda ||\beta||_1 $$
+using standard matrix notations. The $\lambda$ parameter is of particular importance. Its value determines the sparsity of the model: the higher $\lambda$ is, the stronger the $\ell_1$ constraint is and the more $\beta$ coefficients will be zero.
+
+The optimal set of parameters can be selected using cross validation (`OpenCancer` package also allows not to perform cross validation but is not recommended).
+
+`big.simplelasso` has been designed to perform LASSO using `biglasso` package (for the non-pointers version, `simplelasso` the `glmnetUtils` is used). Assume we want to use a pooled model, i.e. we do not define independent groups. In that case, the following command can be used
+
+```{r, message = F, warning=F, eval = T}
+
+lassomodel <- big.simplelasso(X,yvar = 'incidence', labelvar = c("cancer", "age", "sex",
+  "Country_Transco", "year"),
+  crossvalidation = T,
+  nfolds = 10, returnplot = F)
+
+```
+
+where we excluded a few variables - that are labelling variables, not explanatory - from the set of covariates. The `returnplot` option, when it is set to `TRUE` will produce the following plot
+
+```{r, message = F, warning=F, eval = T}
+
+plot(lassomodel$model)
+
+```
+
+The LASSO performance is the following
+
+```{r, message = F, warning=F, eval=T}
+
+summary(lassomodel$model)
+
+```
+
+In that case, we see that from `r length(lassomodel$model$fit$beta@i)` variables, LASSO selects `r sum(lassomodel$coeff != 0)` variables (`r sum(lassomodel$coeff != 0)` variables and a constant). If parallelization is wanted, assuming one core is let aside of computations,
+
+```{r, message = F, warning=F, eval = F}
+
+big.simplelasso(X,yvar = 'incidence', labelvar = c("cancer", "age", "sex",
+  "Country_Transco", "year", "area.x", "area.y"), crossvalidation = T,
+  nfolds = 10, returnplot = F,
+  ncores = parallel::detectCores() - 1)
+
+```
+
+# Linear regression after feature selection
+
+`big.simplelasso` is useful to select features. To go further, we can perform linear regression on selected variables. The `big.model.FElasso` allows to launch a `big.simplelasso` routine, extract non-zero coefficients and use, afterwards, linear regression. 
+
+```{r, message = F, warning=F, eval = T}
+
+pooledOLS <- big.model.FElasso(X,yvar = "incidence",
+                           labelvar = c("cancer", "age",
+  "Country_Transco", "year", "area.x", "area.y"),
+  returnplot = F, groupingvar = NULL)
+
+summary(pooledOLS)
+
+```
+
+```{r, message = F, warning=F, eval = T}
+
+DTsummary.biglm(pooledOLS)$coefftab
+DTsummary.biglm(pooledOLS)$modeltab
+
+```
+
+# Apply same methodology with independent groups
+
+`big.model.FElasso` allows to apply the same methodology with dataframes splitted by groups. 
+For instance, defining independent groups by sex and age class
+
+```{r, message = F, warning=F, eval = F}
+
+panelOLS <- big.model.FElasso(X,yvar = "incidence",
+                              groupingvar = c('sex','age'),
+                              labelvar = c('year','Country_Transco')
+)
+
+DTsummary.biglm(panelOLS[[2]])
+
+```
+
+# Importing data after feature selection
+
+Once features have been selected, using pointers is no longer so relevant since the dataset with a few columns not being so large. It is thus possible, once features have been selected, to import data with selected features back in the memory. `recover_data` has been designed for that. Taking a pointer as input, it performs LASSO to select feature and imports relevant variables back in the memory as a `tibble`. 
+
+```{r, message = F, warning=F, eval = T}
+
+df <- unique(recover_data(X))
+DT::datatable(df[sample.int(nrow(df),10),1:7])
+
+```
+
+It is henceforth possible to use standard statistical and visualization tools. For instance, assume we want to perform random forest using `CARET`
+
+```{r, message = F, warning=F, eval = F}
+
+train.index <- sample.int(n = nrow(df), size = 0.8*nrow(df))
+trainData <- df[train.index,-which(colnames(df) == "year")]
+testData  <- df[-train.index,-which(colnames(df) == "year")]
+
+rfctrl <- trainControl(method = "cv", number = 5)
+randomforest <- caret::train(incidence ~ ., data = trainData,
+                             trControl = rfctrl, method = "rf")
+
+knitr::kable(data.frame(yhat = predict(randomforest,testData),
+                        y = testData$incidence)[1:10,])
+
+```
