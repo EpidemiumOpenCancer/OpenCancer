@@ -20,42 +20,57 @@ knitr::opts_chunk$set(
 
 # Requirement
 
-This `Vignette` presents the methodology that allows to import Epidemium data and merge them. It is assumed following [Epidemium data](http://qa.epidemium.cc/data/epidemiology_dataset/) are stored in the working directory
+This `Vignette` presents the methodology that allows to import Epidemium data and merge them. The following [Epidemium data](http://qa.epidemium.cc/data/epidemiology_dataset/) will be used
 
-* `Faostat_Data.csv`
-* `Ilostat_Data.csv`
-* `training_IARC.csv`
-* `WorldBank_Data.csv`
+* [Faostat_Data.csv]("http://qa.epidemium.cc/data/epidemiology_dataset/fao_data/Faostat_Data.csv")
+* [Ilostat_Data.csv`]("http://qa.epidemium.cc/data/epidemiology_dataset/ilo_data/Ilostat_Data.csv")
+* [training_IARC.csv]("http://qa.epidemium.cc/data/shinyapp/training_IARC.csv")
+* [WorldBank_Data.csv]("http://qa.epidemium.cc/data/epidemiology_dataset/world_bank_data/WorldBank_Data.csv")
 
-# Importing separately dataframes
+`training_IARC.csv` has been preferred to [training.txt]("http://qa.epidemium.cc/data/incidence_dataset/2017-10-10_dataset_core/training.txt"), the latter exhibting more missing values. 
 
-`csv` files can be imported by the use of the `import_*` functions in the `OpenCancer` package. Data can be imported from an url or from a file stored in the user computer.
-
-In this vignette, we will assume data are stored in the machine, in a subdirectory `./inst`. The files used to create this vignette can thus be found in the `./vignettes/inst` directory of the package. 
+To ensure `Vignette` compilation, every dataframe is downloaded from the internet. It might be time-consuming. It is thus recommended to rather manually download required files using a web browser, put them in a subdirectory within the working directory. We called this directory `datadir` in this `Vignette`:
 
 ```{r, message=FALSE,warning=FALSE}
 
-library(OpenCancer)
 datadir <- paste0(getwd(),"/inst")
 
 ```
 
+If all the required files can be find in `datadir`, you can safely use our functions without the web-import option. All the `import_` functions should work when setting `fromURL = F` and the speed gain should be around 50\%. The `filename` and `path` arguments have been filled for that: they are not necessary when importing data from the internet but are necessary if you upload from a computer.  
+
+The only required package in this `Vignette` is
+
+```{r, message=FALSE,warning=FALSE}
+
+library(OpenCancer)
+
+```
+
+# Importing dataframes
+
 ## Importing covariates
 
-The import functions share the same structure. The parameters `colstokeep` allow to only keep a few variables. If `colstokeep = NULL`, all variables are kept in memory. We will keep only first 100 variables in each dataframe
+The `import_*` functions share the same structure. The parameters `colstokeep` allow to only keep a few variables. If `colstokeep = NULL`, all variables are kept in memory. In this `Vignette`, we will only keep a few variables in memory (100 variables) but, if you want the whole dataframes, replicate these examples with `colstokeep = NULL`.
+
+FAO data can be imported with `import_FAO`
 
 ```{r, message=FALSE,warning=FALSE}
 
 df_FAO <- import_FAO(path = datadir, colstokeep = 1:100, fromURL = T)
-knitr::kable(head(df_FAO[!is.na(df_FAO[,10]),1:10]))
+knitr::kable(head(df_FAO[!is.na(df_FAO[,10]),1:10]), caption = "FAO Data")
 
 ```
+
+World Bank data are imported with `import_WB`
 
 ```{r, message=FALSE,warning=FALSE}
 
 df_WB <- import_WB(path = datadir, colstokeep = 1:100, fromURL = T)
-knitr::kable(head(df_WB[!is.na(df_WB[,6]),1:6]))
+knitr::kable(head(df_WB[!is.na(df_WB[,6]),1:6]), caption = "World Bank Data")
 ```
+
+ILO data are imported with `import_ILO`
 
 ```{r, message=FALSE,warning=FALSE}
 df_ILO <- import_ILO(path = datadir, colstokeep = 1:100, fromURL = T)
@@ -64,30 +79,21 @@ knitr::kable(head(df_ILO[!is.na(df_ILO[,6]),1:6]))
 
 ## Importing training data
 
+`import_training` data allows to import both [training_IARC.csv]("http://qa.epidemium.cc/data/shinyapp/training_IARC.csv") and [training.txt]("http://qa.epidemium.cc/data/incidence_dataset/2017-10-10_dataset_core/training.txt"). For its completeness, the former has been preferred. 
+
 ```{r, message=FALSE,warning=FALSE}
 
-df_training <- NULL
-attempt <- 0
-
-while(is.null(df_training) && attempt <= 5) {
-  attempt <- attempt + 1
-  try(
-    df_training <- import_training(path = datadir, colstokeep = NULL,
+df_training <- import_training(path = datadir, colstokeep = NULL,
                                    filename = "training_IARC.csv",
                                    fromURL = TRUE,
                                    url = "http://qa.epidemium.cc/data/shinyapp/training_IARC.csv")
-      )
-}
-
-if (attempt==5) stop("Fetching data failed 5 times: try downloading data and set from URL=FALSE")
 
 ```
 
 ```{r, message=FALSE,warning=FALSE}
-knitr::kable(head(na.omit(df_training)))
+knitr::kable(head(na.omit(df_training)), caption = "Incidence Data")
 ```
 
-We have chosen to use `training_IARC` data because they exhibit fewer missing values for the year variable, one of the identifiers we must use. 
 
 ## Importing variables codes
 
@@ -99,9 +105,11 @@ df_label <- import_coding()
 
 ``` 
 
+It requires an internet connection since files are imported from `Epidemium` website. 
+
 ## Importing joining keys
 
-To ensure data will be consistently merged, we import the `creation zonier.xls` file. All countries in the FAO, ILO and World Bank database should thus be assigned a unique and consistent key, a necessary step before merging dataframes.
+To ensure data will be consistently merged, we import a file called `creation zonier.xls` file, stored in `Github`. All countries in the FAO, ILO and World Bank database should thus be assigned a unique and consistent key, a necessary step before merging dataframes.
 
 ```{r, message=FALSE,warning=FALSE}
 
@@ -110,16 +118,15 @@ download.file(link,destfile = paste0(datadir,"/creation zonier.xls"),mode = "wb"
 codes <- readxl::read_excel(path = paste0(datadir,"/creation zonier.xls"),
                             sheet = "Transco_Country")
 
-knitr::kable(head(codes))
+knitr::kable(head(codes), caption = 'Coding convention for countries')
 
 ```
-
 
 # Merging dataframes
 
 ## Mapping data to a unique key
 
-Using the `codes` dataframe, we use the `matchkeys` function to match countries in a dataframe (e.g. `df_FAO`) with its identifiers. Default source is FAO. 
+Using the `codes` dataframe, we use the `matchkeys` function to match countries in a dataframe (e.g. `df_FAO`) with its identifiers. It only requires to match a dataframe with its source (default is *'FAO'*)
 
 ```{r, message=FALSE,warning=FALSE}
 
@@ -131,7 +138,7 @@ df_ILO = matchkeys(df_ILO,codes, origin = "IloStat")
 
 ## Join data
 
-Now that all explanatory variables dataframes are consistent, we can merge them. 
+At this stage, all explanatory variables dataframes share consistent keys that allow to safely merge them. 
 
 ```{r, message=FALSE,warning=FALSE}
 
@@ -141,10 +148,9 @@ df_covariates <- dplyr::full_join(df_FAO,df_WB, by = c("Country_Transco","year",
 # JOIN AVEC ILO
 df_covariates <- dplyr::left_join(df_covariates,df_ILO, by = c("Country_Transco","year","Zonier"))
 
-
 ```
 
-To ensure consistency with the training data, we control the countries that do not match with the keys list. Since the number is limited (8), we can make a manual change.
+To ensure consistency with the training data, we control the countries that do not match with the keys list. The number is limited for both `training.txt` (8 countries) and `training.csv` (3 countries). This can be handled manually
 
 ```{r, message=FALSE,warning=FALSE}
 
@@ -161,17 +167,25 @@ df_training$country <- plyr::mapvalues(df_training$country, from=oldnames, to=ne
 
 ```
 
-Finally, we clean the dataframe to get a proper training tables that can be interpolated. We ensure we don't have empty columns with `check.emptycolumn` (to ensure we don't have empty lines, we will later use `check.emptyline`)
+The final step in the merging process is to join the incidence dataset with other variables
 
 ```{r, message=FALSE,warning=FALSE}
 
 # HARMONIZING COLUMN NAMES
 df_training  <- df_training %>% dplyr::rename(Country_Transco = country)
+
+# IF NO ETHNICITY IS GIVEN, ASSUMED ALL POPULATION IS PRESENTED
 df_training$ethnicity[is.na(df_training$ethnicity)] <- "All population" 
 df_training$region[is.na(df_training$region)] <- "All regions" 
 
 # JOIN WITH TRAINING DATASET
 df_full <- dplyr::left_join(df_training,df_covariates)
+
+```
+
+Finally, we clean the dataframe to get a proper training tables that can be interpolated. We ensure we don't have empty columns with `check.emptycolumn` (to ensure we don't have empty lines, we will later use `check.emptyline`)
+
+```{r, message=FALSE,warning=FALSE}
 
 # REMOVE UNNECESSARY VARIABLES
 df_full <- df_full %>% select_(.dots = paste0("-", c("cancer", "area.x","area.y",
@@ -181,11 +195,11 @@ df_full <- df_full %>% select_(.dots = paste0("-", c("cancer", "area.x","area.y"
 
 df_full <- df_full[,!check.emptycolumn(df_full)]
 
-knitr::kable(head(df_full[!is.na(df_full[,10]),1:10]))
+knitr::kable(head(df_full[!is.na(df_full[,10]),1:10]), caption = 'Final dataframe before interpolation')
 
 ```
 
-To limit the amount of RAM required by R, we clean the working directory by removing dataframes that are no longer necessary. We also fix as a starting point 1970 where we have all covariates dataframes that begin. 
+To limit the amount of RAM required by R, we clean the global environment by removing dataframes that are no longer necessary. We also fix as a starting point `1970`, where all covariates dataframes are available.
 
 ```{r, message=FALSE,warning=FALSE}
 
@@ -200,7 +214,7 @@ df_full <- df_full %>% filter(year>=1970)
 
 ## Ensuring variables types are consistent
 
-The `OpenCancer` package provides several functions dedicated to the construction of a clean training table. First of all, it might be a good idea to drop empty variables if there are some
+The `OpenCancer` package provides several functions dedicated to the construction of a clean training table. First of all, it might be a good idea to drop empty variables, if there are some
 
 ```{r, message=FALSE,warning=FALSE}
 
@@ -226,7 +240,7 @@ head(check.factor(df_full,check.levels = T,threshold = 12))
 
 ```
 
-Let's say we want to convert each variable with cardinal lower than 12 as `factor`, in that case we must put `check.levels = F`
+Now, let's say we want to convert each variable with cardinal lower than 12 as `factor`. In that case we must put `check.levels = F`
 
 ```{r, message=FALSE,warning=FALSE}
 
@@ -238,6 +252,7 @@ It might also be a good idea to exclude constant variables since they do not pro
 
 ```{r, message=FALSE,warning=FALSE}
 
+# VARIABLES WITH ZERO VARIANCE: CONSTANT VARIABLES -> DROP THEM
 if (sum(apply(df_full[,!sapply(df_full, is.character)], 2, var, na.rm=TRUE) == 0)>0){
   df_full <- df_full[,-which(apply(df_full[,!sapply(df_full, is.character)], 2, var, na.rm=TRUE) == 0)]
 }
@@ -251,7 +266,7 @@ At this stage, `df_full` has `r sum(complete.cases(df_full))` complete rows over
 
 ## Ensuring consistency in missing values treatment
 
-A first useful function has been designed to identify potential miscoding issues. `convert_fakezero` has been designed to inspect variables where zeros might rather be `NAs`. Rather than printing variables code that are obscure, we use our dataframes storing variables labels (`df_coding`)
+A first useful function has been designed to identify potential miscoding issues. `convert_fakezero` has been designed to inspect variables where zeros might rather be `NAs`. We encapsulate the `convert_fakezero` call within a `mapvalues` call to print variables labels rather than codes that are obscure
 
 ```{r, message=FALSE,warning=FALSE}
  
@@ -318,7 +333,7 @@ df_full2 <- interpo$data
 
 # Preparing a `big.matrix`
 
-The dataframe is now ready for statistical modelling. When complete, i.e. when putting `colstokeep = NULL` rather than `colstokeep = 1:20` as above, it might be preferrable to use `big.matrix` object (see `bigmemory` documentation) rather than standard dataframes. 
+The dataframe is now ready for statistical modelling. When complete, i.e. when putting `colstokeep = NULL` rather than `colstokeep = 1:100` as above, it might be preferrable to use `big.matrix` object (see `bigmemory` documentation) rather than standard dataframes. 
 
 A drawback of using objects of class `big.matrix` is that it requires all data to be numeric. This means
 
@@ -346,8 +361,8 @@ names(conversion)
 
 ```{r}
 
-knitr::kable(head(conversion$data[,1:10]))
-knitr::kable(head(conversion$correspondance[[1]]))
+knitr::kable(head(conversion$data[,1:10]), caption = "Dataframe with converted character vectors")
+knitr::kable(head(conversion$correspondance[[1]]), caption = "An example of a correspondance table")
 
 df_full2 <- conversion$data
 
@@ -415,3 +430,10 @@ preprocess.model <- performPreProcess(Y, groupingvar = c("sex","age","Country_Tr
 
 ``` 
 
+
+
+```{r, eval = F}
+
+readr::write_csv(df_full2,path = paste0(datadir,"/exampledf.csv"))
+
+```
