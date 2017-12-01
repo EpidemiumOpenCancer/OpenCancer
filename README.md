@@ -16,7 +16,7 @@ This installation process might be quite long. Once `CARET` have been installed,
 
 ``` r
 install.packages("devtools")
-devtools::install_github("linogaliana/OpenCancer")
+devtools::install_github("EpidemiumOpenCancer/OpenCancer")
 ```
 
 By default, `Vignettes` are not built. If you want to build `Vignettes`, use `devtools::install_github("linogaliana/OpenCancer", build_vignettes = TRUE)`. However, `Vignettes` building might be time-consuming. You can find them [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/import_data.html) and [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/estimation_pointers.html)
@@ -93,15 +93,15 @@ summary(lassomodel$model)
 ```
 
     ## lasso-penalized linear regression with n=5928, p=8185
-    ## At minimum cross-validation error (lambda=1.3428):
+    ## At minimum cross-validation error (lambda=1.4266):
     ## -------------------------------------------------
     ##   Nonzero coefficients: 14
-    ##   Cross-validation error (deviance): 7762.11
+    ##   Cross-validation error (deviance): 7764.09
     ##   R-squared: 0.01
     ##   Signal-to-noise ratio: 0.01
-    ##   Scale estimate (sigma): 88.103
+    ##   Scale estimate (sigma): 88.114
 
-From an initial number of parameters of 8186, LASSO selects 15 variables
+From an initial number of parameters of 8186, LASSO selects 14 variables
 
 If parallelization is wanted, assuming one core is let aside of computations,
 
@@ -126,9 +126,32 @@ pooledOLS <- big.model.FElasso(X,yvar = "incidence",
 summary(pooledOLS)
 ```
 
+    ## Large data regression model: biglm(formula = formula, data = data, ...)
+    ## Sample size =  5928 
+    ##                       Coef      (95%      CI)       SE      p
+    ## (Intercept)       -30.7155 -750.7751 689.3442 360.0298 0.9320
+    ## sex                 4.7179    0.1425   9.2934   2.2877 0.0392
+    ## `6741..72040`       0.6884 -131.8030 133.1799  66.2457 0.9917
+    ## EN.ATM.NOXE.EG.ZS   0.7427  -28.0595  29.5450  14.4011 0.9589
+    ## `6690..5110`       -0.0008   -0.0465   0.0449   0.0228 0.9713
+    ## `1057..5112`        0.0000   -0.0004   0.0004   0.0002 0.9928
+    ## `358..5312`         0.0003   -0.0128   0.0134   0.0065 0.9642
+    ## `372..5510`         0.0000   -0.0004   0.0004   0.0002 0.9724
+    ## `1062..5510`        0.0000   -0.0002   0.0002   0.0001 0.9644
+    ## `2600..5510`        0.0000   -0.0001   0.0001   0.0001 0.9745
+    ## `1780..5510`        0.0000    0.0000   0.0000   0.0000 0.9319
+    ## `51..5510`          0.0000    0.0000   0.0000   0.0000 0.9992
+    ## `2737..5141`            NA        NA       NA       NA     NA
+    ## `882..5510`             NA        NA       NA       NA     NA
+    ## `1765..5510`            NA        NA       NA       NA     NA
+    ## `2737..641`             NA        NA       NA       NA     NA
+    ## `1096..5111`            NA        NA       NA       NA     NA
+
+The `DTsummary.biglm` can be used to produce an HTML summary table.
+
 ``` r
-DTsummary.biglm(pooledOLS)$coefftab
-DTsummary.biglm(pooledOLS)$modeltab
+DTsummary.biglm(pooledOLS)
+DTsummary.biglm(pooledOLS)
 ```
 
 Apply same methodology with independent groups
