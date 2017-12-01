@@ -113,7 +113,7 @@ To ensure data will be consistently merged, we import a file called `creation zo
 
 ```{r, message=FALSE,warning=FALSE}
 
-link <- "https://github.com/linogaliana/OpenCancer/raw/master/vignettes/inst/creation%20zonier.xls"
+link <- "https://github.com/EpidemiumOpenCancer/OpenCancer/raw/master/vignettes/inst/creation%20zonier.xls"
 download.file(link,destfile = paste0(datadir,"/creation zonier.xls"),mode = "wb")
 codes <- readxl::read_excel(path = paste0(datadir,"/creation zonier.xls"),
                             sheet = "Transco_Country")
