@@ -226,8 +226,9 @@ More generally, we can inspect the share of missing values in a variable using `
 
 ```{r, message=FALSE,warning=FALSE}
 
+df_full$ethnicity[is.na(df_full$ethnicity)] <- "All population"
+
 colstokeep <- !check.emptycolumn(df_full,proportion = T)>0.4
-if (!colstokeep["ethnicity"]) colstokeep["ethnicity"] <- TRUE
 df_full <- df_full[,colstokeep]
 
 ```

@@ -28,7 +28,7 @@ devtools::install_github("EpidemiumOpenCancer/OpenCancer")
 
 ``` 
 
-By default, `Vignettes` are not built. If you want to build `Vignettes`, use `devtools::install_github("linogaliana/OpenCancer", build_vignettes = TRUE)`. However, `Vignettes` building might be time-consuming. You can find them [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/import_data.html) and [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/estimation_pointers.html)
+By default, `Vignettes` are not built. If you want to build `Vignettes`, use `devtools::install_github("EpidemiumOpenCancer/OpenCancer", build_vignettes = TRUE)`. However, `Vignettes` building might be time-consuming. You can find them [here](http://htmlpreview.github.io/?https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/vignettes/import_data.html) and [here](http://htmlpreview.github.io/?https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/vignettes/estimation_pointers.html)
 
 `OpenCancer` package has been designed to help anyone wanting to work on cancer data to build a dataset. As an example, we use colon cancer data. However, functions are general enough to be applied to any similar data (change `C18` code to the one you want when using `import_training`). One of the main challenges of the `Epidemium` dataset is that it requires high-dimensional statistical techniques. `OpenCancer` package allows to
 
@@ -39,14 +39,14 @@ By default, `Vignettes` are not built. If you want to build `Vignettes`, use `de
 
 Vignettes have been written to help any users working with `OpenCancer` and can be accessed using `browseVignettes("OpenCancer")`
 
-* [Import Epidemium data and build training table](/vignettes/import_data.Rmd). HTML version can be found [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/import_data.html)
-* [Use pointers to build statistical models](/vignettes/estimation_pointers.Rmd). HTML version can be found [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/estimation_pointers.html)
+* [Import Epidemium data and build training table](/vignettes/import_data.Rmd). HTML version can be found [here](http://htmlpreview.github.io/?https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/vignettes/import_data.html)
+* [Use pointers to build statistical models](/vignettes/estimation_pointers.Rmd). HTML version can be found [here](http://htmlpreview.github.io/?https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/vignettes/estimation_pointers.html)
 
-If you want to see this `README` with the code output in HTML, go [there](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/README.html)
+If you want to see this `README` with the code output in HTML, go [there](http://htmlpreview.github.io/?https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/README.html)
 
 It might be hard to work with Epidemium data because they require lots of RAM when working with R. It is a challenge to take advantage of the statistical power of R packages without being limited by the R memory handling system. Many functions of the `OpenCancer`, relying on the `bigmemory` package, implement memory efficient techniques based on C++ pointer.
 
-`OpenCancer` package has been designed such that it is possible to work with pointers (`big.*` functions) or apply equivalent functions when working with standard dataframes (same functions names without `big.*` prefix). In this tutorial, we will use pointers since it is less standard and might require some explanations. More examples are available [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/estimation_pointers.html)
+`OpenCancer` package has been designed such that it is possible to work with pointers (`big.*` functions) or apply equivalent functions when working with standard dataframes (same functions names without `big.*` prefix). In this tutorial, we will use pointers since it is less standard and might require some explanations. More examples are available [here](http://htmlpreview.github.io/?https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/vignettes/estimation_pointers.html)
 
 
 # Importing Epidemium data using pointers
