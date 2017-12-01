@@ -19,7 +19,7 @@ install.packages("devtools")
 devtools::install_github("EpidemiumOpenCancer/OpenCancer")
 ```
 
-By default, `Vignettes` are not built. If you want to build `Vignettes`, use `devtools::install_github("linogaliana/OpenCancer", build_vignettes = TRUE)`. However, `Vignettes` building might be time-consuming. You can find them [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/import_data.html) and [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/estimation_pointers.html)
+By default, `Vignettes` are not built. If you want to build `Vignettes`, use `devtools::install_github("EpidemiumOpenCancer/OpenCancer", build_vignettes = TRUE)`. However, `Vignettes` building might be time-consuming. You can find them [here](http://htmlpreview.github.io/?https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/vignettes/import_data.html) and [here](http://htmlpreview.github.io/?https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/vignettes/estimation_pointers.html)
 
 `OpenCancer` package has been designed to help anyone wanting to work on cancer data to build a dataset. As an example, we use colon cancer data. However, functions are general enough to be applied to any similar data (change `C18` code to the one you want when using `import_training`). One of the main challenges of the `Epidemium` dataset is that it requires high-dimensional statistical techniques. `OpenCancer` package allows to
 
@@ -30,14 +30,14 @@ By default, `Vignettes` are not built. If you want to build `Vignettes`, use `de
 
 Vignettes have been written to help any users working with `OpenCancer` and can be accessed using `browseVignettes("OpenCancer")`
 
--   [Import Epidemium data and build training table](/vignettes/import_data.Rmd). HTML version can be found [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/import_data.html)
--   [Use pointers to build statistical models](/vignettes/estimation_pointers.Rmd). HTML version can be found [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/estimation_pointers.html)
+-   [Import Epidemium data and build training table](/vignettes/import_data.Rmd). HTML version can be found [here](http://htmlpreview.github.io/?https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/vignettes/import_data.html)
+-   [Use pointers to build statistical models](/vignettes/estimation_pointers.Rmd). HTML version can be found [here](http://htmlpreview.github.io/?https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/vignettes/estimation_pointers.html)
 
-If you want to see this `README` with the code output in HTML, go [there](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/README.html)
+If you want to see this `README` with the code output in HTML, go [there](http://htmlpreview.github.io/?https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/README.html)
 
 It might be hard to work with Epidemium data because they require lots of RAM when working with R. It is a challenge to take advantage of the statistical power of R packages without being limited by the R memory handling system. Many functions of the `OpenCancer`, relying on the `bigmemory` package, implement memory efficient techniques based on C++ pointer.
 
-`OpenCancer` package has been designed such that it is possible to work with pointers (`big.*` functions) or apply equivalent functions when working with standard dataframes (same functions names without `big.*` prefix). In this tutorial, we will use pointers since it is less standard and might require some explanations. More examples are available [here](http://htmlpreview.github.io/?https://github.com/linogaliana/OpenCancer/blob/master/vignettes/estimation_pointers.html)
+`OpenCancer` package has been designed such that it is possible to work with pointers (`big.*` functions) or apply equivalent functions when working with standard dataframes (same functions names without `big.*` prefix). In this tutorial, we will use pointers since it is less standard and might require some explanations. More examples are available [here](http://htmlpreview.github.io/?https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/vignettes/estimation_pointers.html)
 
 Importing Epidemium data using pointers
 =======================================
@@ -93,15 +93,15 @@ summary(lassomodel$model)
 ```
 
     ## lasso-penalized linear regression with n=5928, p=8185
-    ## At minimum cross-validation error (lambda=1.4266):
+    ## At minimum cross-validation error (lambda=1.6596):
     ## -------------------------------------------------
-    ##   Nonzero coefficients: 14
-    ##   Cross-validation error (deviance): 7764.09
+    ##   Nonzero coefficients: 12
+    ##   Cross-validation error (deviance): 7765.92
     ##   R-squared: 0.01
     ##   Signal-to-noise ratio: 0.01
-    ##   Scale estimate (sigma): 88.114
+    ##   Scale estimate (sigma): 88.124
 
-From an initial number of parameters of 8186, LASSO selects 14 variables
+From an initial number of parameters of 8186, LASSO selects 12 variables
 
 If parallelization is wanted, assuming one core is let aside of computations,
 
@@ -128,24 +128,21 @@ summary(pooledOLS)
 
     ## Large data regression model: biglm(formula = formula, data = data, ...)
     ## Sample size =  5928 
-    ##                       Coef      (95%      CI)       SE      p
-    ## (Intercept)       -30.7155 -750.7751 689.3442 360.0298 0.9320
-    ## sex                 4.7179    0.1425   9.2934   2.2877 0.0392
-    ## `6741..72040`       0.6884 -131.8030 133.1799  66.2457 0.9917
-    ## EN.ATM.NOXE.EG.ZS   0.7427  -28.0595  29.5450  14.4011 0.9589
-    ## `6690..5110`       -0.0008   -0.0465   0.0449   0.0228 0.9713
-    ## `1057..5112`        0.0000   -0.0004   0.0004   0.0002 0.9928
-    ## `358..5312`         0.0003   -0.0128   0.0134   0.0065 0.9642
-    ## `372..5510`         0.0000   -0.0004   0.0004   0.0002 0.9724
-    ## `1062..5510`        0.0000   -0.0002   0.0002   0.0001 0.9644
-    ## `2600..5510`        0.0000   -0.0001   0.0001   0.0001 0.9745
-    ## `1780..5510`        0.0000    0.0000   0.0000   0.0000 0.9319
-    ## `51..5510`          0.0000    0.0000   0.0000   0.0000 0.9992
-    ## `2737..5141`            NA        NA       NA       NA     NA
-    ## `882..5510`             NA        NA       NA       NA     NA
-    ## `1765..5510`            NA        NA       NA       NA     NA
-    ## `2737..641`             NA        NA       NA       NA     NA
-    ## `1096..5111`            NA        NA       NA       NA     NA
+    ##                    Coef       (95%       CI)        SE      p
+    ## (Intercept)     43.1951 -4217.8538 4304.2439 2130.5244 0.9838
+    ## sex              4.7179     0.1425    9.2934    2.2877 0.0392
+    ## `6741..72040` -103.7412 -8142.3828 7934.9003 4019.3208 0.9794
+    ## `6690..5110`    -0.0090    -0.7658    0.7477    0.3784 0.9810
+    ## `1057..5112`     0.0001    -0.0111    0.0114    0.0056 0.9811
+    ## `372..5510`      0.0000    -0.0007    0.0007    0.0003 0.9698
+    ## `2600..5510`     0.0000    -0.0002    0.0002    0.0001 0.9730
+    ## `1062..5510`     0.0001    -0.0058    0.0060    0.0029 0.9797
+    ## `1780..5510`     0.0001    -0.0083    0.0085    0.0042 0.9779
+    ## `51..5510`       0.0000    -0.0010    0.0010    0.0005 0.9803
+    ## `882..5510`     -0.0001    -0.0083    0.0080    0.0041 0.9779
+    ## `1765..5510`     0.0000    -0.0003    0.0003    0.0001 0.9805
+    ## `1770..5510`         NA         NA        NA        NA     NA
+    ## `2738..5300`         NA         NA        NA        NA     NA
 
 The `DTsummary.biglm` can be used to produce an HTML summary table.
 
