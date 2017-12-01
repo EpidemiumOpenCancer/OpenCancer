@@ -24,7 +24,7 @@ This installation process might be quite long. Once `CARET` have been installed,
 ```{r, eval=FALSE}
 
 install.packages("devtools")
-devtools::install_github("linogaliana/OpenCancer")
+devtools::install_github("EpidemiumOpenCancer/OpenCancer")
 
 ``` 
 
