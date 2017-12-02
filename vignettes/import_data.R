@@ -38,7 +38,7 @@ while(is.null(df_training) && attempt <= 5) {
     df_training <- import_training(path = datadir, colstokeep = NULL,
                                    filename = "training_IARC.csv",
                                    fromURL = TRUE,
-                                   url = "https://github.com/linogaliana/OpenCancer/raw/master/vignettes/inst/training_IARC.csv")
+                                   url = "http://qa.epidemium.cc/data/shinyapp//training_IARC.csv")
       )
 }
 
