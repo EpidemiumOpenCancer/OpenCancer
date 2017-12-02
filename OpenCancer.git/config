@@ -5,6 +5,6 @@
 	symlinks = false
 	ignorecase = true
 [remote "origin"]
-	url = git@github.com:linogaliana/OpenCancer.git
+	url = git@github.com:EpidemiumOpenCancer/OpenCancer.git
 	fetch = +refs/*:refs/*
 	mirror = true
