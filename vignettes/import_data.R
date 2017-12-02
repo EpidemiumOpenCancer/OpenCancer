@@ -55,7 +55,8 @@ df_label <- import_coding()
 
 ## ---- message=FALSE,warning=FALSE----------------------------------------
 
-url <- "https://github.com/linogaliana/OpenCancer/raw/master/vignettes/inst/creation%20zonier.xls"
+url <- "
+https://github.com/EpidemiumOpenCancer/OpenCancer/blob/master/vignettes/inst/creation%20zonier.xls"
 download.file(url,destfile = paste0(datadir,"/creation zonier.xls"),mode = "wb")
 codes <- readxl::read_excel(path = paste0(datadir,"/creation zonier.xls"),
                             sheet = "Transco_Country")
