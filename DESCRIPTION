@@ -3,7 +3,7 @@ Type: Package
 Title: Build statistical models to understand cancer causes
 Version: 0.1.0
 Author: Lino Galiana
-Description: A package that aims to help anyone working with cancer data to
+Description: A package that aims helping anyone working with cancer data to
     import Epidemium dataset
     and build robust
     statistical models. OpenCancer package first goal is to securize the building
