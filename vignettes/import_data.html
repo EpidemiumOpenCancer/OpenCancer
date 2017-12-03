@@ -12,7 +12,7 @@
 
 <meta name="author" content="Lino Galiana" />
 
-<meta name="date" content="2017-11-30" />
+<meta name="date" content="2017-12-02" />
 
 <title>Building cancer dataset for Epidemium challenge</title>
 
@@ -70,34 +70,39 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Building cancer dataset for Epidemium challenge</h1>
 <h4 class="author"><em>Lino Galiana</em></h4>
-<h4 class="date"><em>2017-11-30</em></h4>
+<h4 class="date"><em>2017-12-02</em></h4>
 
 
 
 <div id="requirement" class="section level1">
 <h1>Requirement</h1>
-<p>This <code>Vignette</code> presents the methodology that allows to import Epidemium data and merge them. It is assumed following <a href="http://qa.epidemium.cc/data/epidemiology_dataset/">Epidemium data</a> are <strong>stored in the working directory</strong>:</p>
+<p>This <code>Vignette</code> presents the methodology that allows to import Epidemium data and merge them. The following <a href="http://qa.epidemium.cc/data/epidemiology_dataset/">Epidemium data</a> will be used</p>
 <ul>
-<li><code>Faostat_Data.csv</code></li>
-<li><code>Ilostat_Data.csv</code></li>
-<li><code>training_IARC.csv</code></li>
-<li><code>WorldBank_Data.csv</code></li>
+<li><a href="%22http://qa.epidemium.cc/data/epidemiology_dataset/fao_data/Faostat_Data.csv%22">Faostat_Data.csv</a></li>
+<li><a href="%22http://qa.epidemium.cc/data/epidemiology_dataset/ilo_data/Ilostat_Data.csv%22">Ilostat_Data.csv`</a></li>
+<li><a href="%22http://qa.epidemium.cc/data/shinyapp/training_IARC.csv%22">training_IARC.csv</a></li>
+<li><a href="%22http://qa.epidemium.cc/data/epidemiology_dataset/world_bank_data/WorldBank_Data.csv%22">WorldBank_Data.csv</a></li>
 </ul>
-</div>
-<div id="importing-separately-dataframes" class="section level1">
-<h1>Importing separately dataframes</h1>
-<p><code>csv</code> files can be imported by the use of the <code>import_*</code> functions in the <code>OpenCancer</code> package. Data can be imported from an url or from a file stored in the user computer.</p>
-<p>In this vignette, we will assume data are stored in the machine, in a subdirectory <code>./inst</code>. The files used to create this vignette can thus be found in the <code>./vignettes/inst</code> directory of the package.</p>
+<p><code>training_IARC.csv</code> has been preferred to <a href="%22http://qa.epidemium.cc/data/incidence_dataset/2017-10-10_dataset_core/training.txt%22">training.txt</a>, the latter exhibting more missing values.</p>
+<p>To ensure <code>Vignette</code> compilation, every dataframe is downloaded from the internet. It might be time-consuming. It is thus recommended to rather manually download required files using a web browser, put them in a subdirectory within the working directory. We called this directory <code>datadir</code> in this <code>Vignette</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-<span class="kw">library</span>(OpenCancer)
 datadir &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="kw">getwd</span>(),<span class="st">&quot;/inst&quot;</span>)</code></pre></div>
+<p>If all the required files can be find in <code>datadir</code>, you can safely use our functions without the web-import option. All the <code>import_</code> functions should work when setting <code>fromURL = F</code> and the speed gain should be around 50%. The <code>filename</code> and <code>path</code> arguments have been filled for that: they are not necessary when importing data from the internet but are necessary if you upload from a computer.</p>
+<p>The only required package in this <code>Vignette</code> is</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="kw">library</span>(OpenCancer)</code></pre></div>
+</div>
+<div id="importing-dataframes" class="section level1">
+<h1>Importing dataframes</h1>
 <div id="importing-covariates" class="section level2">
 <h2>Importing covariates</h2>
-<p>The import functions share the same structure. The parameters <code>colstokeep</code> allow to only keep a few variables. If <code>colstokeep = NULL</code>, all variables are kept in memory. We will keep only first 100 variables in each dataframe</p>
+<p>The <code>import_*</code> functions share the same structure. The parameters <code>colstokeep</code> allow to only keep a few variables. If <code>colstokeep = NULL</code>, all variables are kept in memory. In this <code>Vignette</code>, we will only keep a few variables in memory (100 variables) but, if you want the whole dataframes, replicate these examples with <code>colstokeep = NULL</code>.</p>
+<p>FAO data can be imported with <code>import_FAO</code></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 df_FAO &lt;-<span class="st"> </span><span class="kw">import_FAO</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>, <span class="dt">fromURL =</span> T)
-knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(df_FAO[<span class="op">!</span><span class="kw">is.na</span>(df_FAO[,<span class="dv">10</span>]),<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]))</code></pre></div>
+knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(df_FAO[<span class="op">!</span><span class="kw">is.na</span>(df_FAO[,<span class="dv">10</span>]),<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]), <span class="dt">caption =</span> <span class="st">&quot;FAO Data&quot;</span>)</code></pre></div>
 <table>
+<caption>FAO Data</caption>
 <thead>
 <tr class="header">
 <th align="left">area</th>
@@ -187,10 +192,12 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 </tr>
 </tbody>
 </table>
+<p>World Bank data are imported with <code>import_WB</code></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 df_WB &lt;-<span class="st"> </span><span class="kw">import_WB</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>, <span class="dt">fromURL =</span> T)
-knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(df_WB[<span class="op">!</span><span class="kw">is.na</span>(df_WB[,<span class="dv">6</span>]),<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>]))</code></pre></div>
+knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(df_WB[<span class="op">!</span><span class="kw">is.na</span>(df_WB[,<span class="dv">6</span>]),<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>]), <span class="dt">caption =</span> <span class="st">&quot;World Bank Data&quot;</span>)</code></pre></div>
 <table>
+<caption>World Bank Data</caption>
 <thead>
 <tr class="header">
 <th align="left">area_code</th>
@@ -252,6 +259,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 </tr>
 </tbody>
 </table>
+<p>ILO data are imported with <code>import_ILO</code></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df_ILO &lt;-<span class="st"> </span><span class="kw">import_ILO</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">100</span>, <span class="dt">fromURL =</span> T)
 knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(df_ILO[<span class="op">!</span><span class="kw">is.na</span>(df_ILO[,<span class="dv">6</span>]),<span class="dv">1</span><span class="op">:</span><span class="dv">6</span>]))</code></pre></div>
 <table>
@@ -319,23 +327,15 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 </div>
 <div id="importing-training-data" class="section level2">
 <h2>Importing training data</h2>
+<p><code>import_training</code> data allows to import both <a href="%22http://qa.epidemium.cc/data/shinyapp/training_IARC.csv%22">training_IARC.csv</a> and <a href="%22http://qa.epidemium.cc/data/incidence_dataset/2017-10-10_dataset_core/training.txt%22">training.txt</a>. For its completeness, the former has been preferred.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-df_training &lt;-<span class="st"> </span><span class="ot">NULL</span>
-attempt &lt;-<span class="st"> </span><span class="dv">0</span>
-
-<span class="cf">while</span>(<span class="kw">is.null</span>(df_training) <span class="op">&amp;&amp;</span><span class="st"> </span>attempt <span class="op">&lt;=</span><span class="st"> </span><span class="dv">5</span>) {
-  attempt &lt;-<span class="st"> </span>attempt <span class="op">+</span><span class="st"> </span><span class="dv">1</span>
-  <span class="kw">try</span>(
-    df_training &lt;-<span class="st"> </span><span class="kw">import_training</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="ot">NULL</span>,
+df_training &lt;-<span class="st"> </span><span class="kw">import_training</span>(<span class="dt">path =</span> datadir, <span class="dt">colstokeep =</span> <span class="ot">NULL</span>,
                                    <span class="dt">filename =</span> <span class="st">&quot;training_IARC.csv&quot;</span>,
                                    <span class="dt">fromURL =</span> <span class="ot">TRUE</span>,
-                                   <span class="dt">url =</span> <span class="st">&quot;https://github.com/linogaliana/OpenCancer/raw/master/vignettes/inst/training_IARC.csv&quot;</span>)
-      )
-}
-
-<span class="cf">if</span> (attempt<span class="op">==</span><span class="dv">5</span>) <span class="kw">stop</span>(<span class="st">&quot;Fetching data failed 5 times: try downloading data and set from URL=FALSE&quot;</span>)</code></pre></div>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(<span class="kw">na.omit</span>(df_training)))</code></pre></div>
+                                   <span class="dt">url =</span> <span class="st">&quot;http://qa.epidemium.cc/data/shinyapp/training_IARC.csv&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(<span class="kw">na.omit</span>(df_training)), <span class="dt">caption =</span> <span class="st">&quot;Incidence Data&quot;</span>)</code></pre></div>
 <table>
+<caption>Incidence Data</caption>
 <thead>
 <tr class="header">
 <th align="left">cancer</th>
@@ -411,25 +411,26 @@ attempt &lt;-<span class="st"> </span><span class="dv">0</span>
 </tr>
 </tbody>
 </table>
-<p>We have chosen to use <code>training_IARC</code> data because they exhibit fewer missing values for the year variable, one of the identifiers we must use.</p>
 </div>
 <div id="importing-variables-codes" class="section level2">
 <h2>Importing variables codes</h2>
 <p>The following function has been designed to easily import from the Epidemium website the labels of all the variables names.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 df_label &lt;-<span class="st"> </span><span class="kw">import_coding</span>()</code></pre></div>
+<p>It requires an internet connection since files are imported from <code>Epidemium</code> website.</p>
 </div>
 <div id="importing-joining-keys" class="section level2">
 <h2>Importing joining keys</h2>
-<p>To ensure data will be consistently merged, we import the <code>creation zonier.xls</code> file. All countries in the FAO, ILO and World Bank database should thus be assigned a unique and consistent key, a necessary step before merging dataframes.</p>
+<p>To ensure data will be consistently merged, we import a file called <code>creation zonier.xls</code> file, stored in <code>Github</code>. All countries in the FAO, ILO and World Bank database should thus be assigned a unique and consistent key, a necessary step before merging dataframes.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-url &lt;-<span class="st"> &quot;https://github.com/linogaliana/OpenCancer/raw/master/vignettes/inst/creation%20zonier.xls&quot;</span>
-<span class="kw">download.file</span>(url,<span class="dt">destfile =</span> <span class="kw">paste0</span>(datadir,<span class="st">&quot;/creation zonier.xls&quot;</span>),<span class="dt">mode =</span> <span class="st">&quot;wb&quot;</span>)
+link &lt;-<span class="st"> &quot;https://github.com/EpidemiumOpenCancer/OpenCancer/raw/master/vignettes/inst/creation%20zonier.xls&quot;</span>
+<span class="kw">download.file</span>(link,<span class="dt">destfile =</span> <span class="kw">paste0</span>(datadir,<span class="st">&quot;/creation zonier.xls&quot;</span>),<span class="dt">mode =</span> <span class="st">&quot;wb&quot;</span>)
 codes &lt;-<span class="st"> </span>readxl<span class="op">::</span><span class="kw">read_excel</span>(<span class="dt">path =</span> <span class="kw">paste0</span>(datadir,<span class="st">&quot;/creation zonier.xls&quot;</span>),
                             <span class="dt">sheet =</span> <span class="st">&quot;Transco_Country&quot;</span>)
 
-knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(codes))</code></pre></div>
+knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(codes), <span class="dt">caption =</span> <span class="st">'Coding convention for countries'</span>)</code></pre></div>
 <table>
+<caption>Coding convention for countries</caption>
 <thead>
 <tr class="header">
 <th align="left">Source</th>
@@ -483,7 +484,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 <h1>Merging dataframes</h1>
 <div id="mapping-data-to-a-unique-key" class="section level2">
 <h2>Mapping data to a unique key</h2>
-<p>Using the <code>codes</code> dataframe, we use the <code>matchkeys</code> function to match countries in a dataframe (e.g. <code>df_FAO</code>) with its identifiers. Default source is FAO.</p>
+<p>Using the <code>codes</code> dataframe, we use the <code>matchkeys</code> function to match countries in a dataframe (e.g. <code>df_FAO</code>) with its identifiers. It only requires to match a dataframe with its source (default is <em>‘FAO’</em>)</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 df_FAO =<span class="st"> </span><span class="kw">matchkeys</span>(df_FAO,codes)
 df_WB =<span class="st"> </span><span class="kw">matchkeys</span>(df_WB,codes,<span class="dt">origin =</span> <span class="st">&quot;World Bank&quot;</span>)
@@ -491,14 +492,14 @@ df_ILO =<span class="st"> </span><span class="kw">matchkeys</span>(df_ILO,codes,
 </div>
 <div id="join-data" class="section level2">
 <h2>Join data</h2>
-<p>Now that all explanatory variables dataframes are consistent, we can merge them.</p>
+<p>At this stage, all explanatory variables dataframes share consistent keys that allow to safely merge them.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 <span class="co"># LEFT JOIN FAO AND WORLD BANK DATA: NO RESTRICTION TO POST 1970 DATA</span>
 df_covariates &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">full_join</span>(df_FAO,df_WB, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;Country_Transco&quot;</span>,<span class="st">&quot;year&quot;</span>,<span class="st">&quot;Zonier&quot;</span>))
 
 <span class="co"># JOIN AVEC ILO</span>
 df_covariates &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">left_join</span>(df_covariates,df_ILO, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;Country_Transco&quot;</span>,<span class="st">&quot;year&quot;</span>,<span class="st">&quot;Zonier&quot;</span>))</code></pre></div>
-<p>To ensure consistency with the training data, we control the countries that do not match with the keys list. Since the number is limited (8), we can make a manual change.</p>
+<p>To ensure consistency with the training data, we control the countries that do not match with the keys list. The number is limited for both <code>training.txt</code> (8 countries) and <code>training.csv</code> (3 countries). This can be handled manually</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 <span class="co"># CHANGING MISMATCHED NAMES WITH TRAINING DATASET</span>
 oldnames &lt;-<span class="st"> </span><span class="kw">unique</span>(df_training<span class="op">$</span>country[<span class="op">!</span>df_training<span class="op">$</span>country <span class="op">%in%</span><span class="st"> </span>
@@ -510,16 +511,19 @@ newnames &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st
 <span class="co">#              &quot;South Korea&quot;,&quot;VietNam&quot;,&quot;Yugoslavia&quot;)</span>
 df_training<span class="op">$</span>country &lt;-<span class="st"> </span>plyr<span class="op">::</span><span class="kw">mapvalues</span>(df_training<span class="op">$</span>country, <span class="dt">from=</span>oldnames, <span class="dt">to=</span>newnames,
                                        <span class="dt">warn_missing =</span> <span class="ot">FALSE</span>)</code></pre></div>
-<p>Finally, we clean the dataframe to get a proper training tables that can be interpolated. We ensure we don’t have empty columns with <code>check.emptycolumn</code> (to ensure we don’t have empty lines, we will later use <code>check.emptyline</code>)</p>
+<p>The final step in the merging process is to join the incidence dataset with other variables</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 <span class="co"># HARMONIZING COLUMN NAMES</span>
 df_training  &lt;-<span class="st"> </span>df_training <span class="op">%&gt;%</span><span class="st"> </span>dplyr<span class="op">::</span><span class="kw">rename</span>(<span class="dt">Country_Transco =</span> country)
+
+<span class="co"># IF NO ETHNICITY IS GIVEN, ASSUMED ALL POPULATION IS PRESENTED</span>
 df_training<span class="op">$</span>ethnicity[<span class="kw">is.na</span>(df_training<span class="op">$</span>ethnicity)] &lt;-<span class="st"> &quot;All population&quot;</span> 
 df_training<span class="op">$</span>region[<span class="kw">is.na</span>(df_training<span class="op">$</span>region)] &lt;-<span class="st"> &quot;All regions&quot;</span> 
 
 <span class="co"># JOIN WITH TRAINING DATASET</span>
-df_full &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">left_join</span>(df_training,df_covariates)
-
+df_full &lt;-<span class="st"> </span>dplyr<span class="op">::</span><span class="kw">left_join</span>(df_training,df_covariates)</code></pre></div>
+<p>Finally, we clean the dataframe to get a proper training tables that can be interpolated. We ensure we don’t have empty columns with <code>check.emptycolumn</code> (to ensure we don’t have empty lines, we will later use <code>check.emptyline</code>)</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 <span class="co"># REMOVE UNNECESSARY VARIABLES</span>
 df_full &lt;-<span class="st"> </span>df_full <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select_</span>(<span class="dt">.dots =</span> <span class="kw">paste0</span>(<span class="st">&quot;-&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;cancer&quot;</span>, <span class="st">&quot;area.x&quot;</span>,<span class="st">&quot;area.y&quot;</span>,
              <span class="st">&quot;area_code&quot;</span>,<span class="st">&quot;ref_area&quot;</span>,
@@ -528,8 +532,9 @@ df_full &lt;-<span class="st"> </span>df_full <span class="op">%&gt;%</span><spa
 
 df_full &lt;-<span class="st"> </span>df_full[,<span class="op">!</span><span class="kw">check.emptycolumn</span>(df_full)]
 
-knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(df_full[<span class="op">!</span><span class="kw">is.na</span>(df_full[,<span class="dv">10</span>]),<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]))</code></pre></div>
+knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(df_full[<span class="op">!</span><span class="kw">is.na</span>(df_full[,<span class="dv">10</span>]),<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]), <span class="dt">caption =</span> <span class="st">'Final dataframe before interpolation'</span>)</code></pre></div>
 <table>
+<caption>Final dataframe before interpolation</caption>
 <thead>
 <tr class="header">
 <th align="right">sex</th>
@@ -619,7 +624,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 </tr>
 </tbody>
 </table>
-<p>To limit the amount of RAM required by R, we clean the working directory by removing dataframes that are no longer necessary. We also fix as a starting point 1970 where we have all covariates dataframes that begin.</p>
+<p>To limit the amount of RAM required by R, we clean the global environment by removing dataframes that are no longer necessary. We also fix as a starting point <code>1970</code>, where all covariates dataframes are available.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 pryr<span class="op">::</span><span class="kw">mem_change</span>(<span class="kw">rm</span>(df_ILO,df_FAO,df_WB,df_training,
    df_covariates))
@@ -632,24 +637,26 @@ df_full &lt;-<span class="st"> </span>df_full <span class="op">%&gt;%</span><spa
 <h1>Cleaning dataset</h1>
 <div id="ensuring-variables-types-are-consistent" class="section level2">
 <h2>Ensuring variables types are consistent</h2>
-<p>The <code>OpenCancer</code> package provides several functions dedicated to the construction of a clean training table. First of all, it might be a good idea to drop empty variables if there are some</p>
+<p>The <code>OpenCancer</code> package provides several functions dedicated to the construction of a clean training table. First of all, it might be a good idea to drop empty variables, if there are some</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 <span class="cf">if</span> (<span class="kw">sum</span>(<span class="kw">check.emptycolumn</span>(df_full))<span class="op">&gt;</span><span class="dv">0</span>) df_full &lt;-<span class="st"> </span><span class="kw">check.emptycolumn</span>(df_full)</code></pre></div>
 <p>More generally, we can inspect the share of missing values in a variable using <code>check.emptycolumn</code>. It might thus be a good idea to drop variables that have too much missing values since interpolation will show small precision with too much missing values. For instance, if we want to drop variables that have more of 40% of missing values (187 variables over 273), we do</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+df_full<span class="op">$</span>ethnicity[<span class="kw">is.na</span>(df_full<span class="op">$</span>ethnicity)] &lt;-<span class="st"> &quot;All population&quot;</span>
+
 colstokeep &lt;-<span class="st"> </span><span class="op">!</span><span class="kw">check.emptycolumn</span>(df_full,<span class="dt">proportion =</span> T)<span class="op">&gt;</span><span class="fl">0.4</span>
-<span class="cf">if</span> (<span class="op">!</span>colstokeep[<span class="st">&quot;ethnicity&quot;</span>]) colstokeep[<span class="st">&quot;ethnicity&quot;</span>] &lt;-<span class="st"> </span><span class="ot">TRUE</span>
 df_full &lt;-<span class="st"> </span>df_full[,colstokeep]</code></pre></div>
 <p>Another modification that might be useful is converting some variables into <code>factors</code>. The <code>check_factor</code> variable has been designed for that. First, if we want to inspect the cardinal of each potential factor, we use the argument <code>check.levels = T</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 <span class="kw">head</span>(<span class="kw">check.factor</span>(df_full,<span class="dt">check.levels =</span> T,<span class="dt">threshold =</span> <span class="dv">12</span>))
 <span class="co">#&gt;         sex SE.PRE.DURS SE.PRM.AGES SE.PRM.DURS SE.SEC.AGES SE.SEC.DURS </span>
 <span class="co">#&gt;           2           4           4           6           4           6</span></code></pre></div>
-<p>Let’s say we want to convert each variable with cardinal lower than 12 as <code>factor</code>, in that case we must put <code>check.levels = F</code></p>
+<p>Now, let’s say we want to convert each variable with cardinal lower than 12 as <code>factor</code>. In that case we must put <code>check.levels = F</code></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 df_full &lt;-<span class="st"> </span><span class="kw">check.factor</span>(df_full,<span class="dt">check.levels =</span> F,<span class="dt">threshold =</span> <span class="dv">12</span>)</code></pre></div>
 <p>It might also be a good idea to exclude constant variables since they do not provide information when building statistical models.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+<span class="co"># VARIABLES WITH ZERO VARIANCE: CONSTANT VARIABLES -&gt; DROP THEM</span>
 <span class="cf">if</span> (<span class="kw">sum</span>(<span class="kw">apply</span>(df_full[,<span class="op">!</span><span class="kw">sapply</span>(df_full, is.character)], <span class="dv">2</span>, var, <span class="dt">na.rm=</span><span class="ot">TRUE</span>) <span class="op">==</span><span class="st"> </span><span class="dv">0</span>)<span class="op">&gt;</span><span class="dv">0</span>){
   df_full &lt;-<span class="st"> </span>df_full[,<span class="op">-</span><span class="kw">which</span>(<span class="kw">apply</span>(df_full[,<span class="op">!</span><span class="kw">sapply</span>(df_full, is.character)], <span class="dv">2</span>, var, <span class="dt">na.rm=</span><span class="ot">TRUE</span>) <span class="op">==</span><span class="st"> </span><span class="dv">0</span>)]
 }
@@ -663,7 +670,7 @@ df_full &lt;-<span class="st"> </span><span class="kw">check.factor</span>(df_fu
 <p>At this stage, <code>df_full</code> has 10336 complete rows over 86. Interpolating missing values might help to build robust statistical models. A series of function being part of the <code>OpenCancer</code> package have been specifically built to deal with missing values.</p>
 <div id="ensuring-consistency-in-missing-values-treatment" class="section level2">
 <h2>Ensuring consistency in missing values treatment</h2>
-<p>A first useful function has been designed to identify potential miscoding issues. <code>convert_fakezero</code> has been designed to inspect variables where zeros might rather be <code>NAs</code>. Rather than printing variables code that are obscure, we use our dataframes storing variables labels (<code>df_coding</code>)</p>
+<p>A first useful function has been designed to identify potential miscoding issues. <code>convert_fakezero</code> has been designed to inspect variables where zeros might rather be <code>NAs</code>. We encapsulate the <code>convert_fakezero</code> call within a <code>mapvalues</code> call to print variables labels rather than codes that are obscure</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"> 
 <span class="kw">head</span>(plyr<span class="op">::</span><span class="kw">mapvalues</span>(<span class="kw">names</span>(<span class="kw">which</span>(<span class="kw">convert_fakezero</span>(df_full,<span class="dt">convert =</span> F))),
                 <span class="dt">from =</span> df_label<span class="op">$</span>code,
@@ -700,23 +707,23 @@ knitr<span class="op">::</span><span class="kw">kable</span>(df,<span class="dt"
 <tbody>
 <tr class="odd">
 <td align="right">1980</td>
-<td align="right">1.1655773</td>
+<td align="right">-0.0601864</td>
 </tr>
 <tr class="even">
 <td align="right">1983</td>
-<td align="right">-0.2289347</td>
+<td align="right">0.7000182</td>
 </tr>
 <tr class="odd">
 <td align="right">1984</td>
-<td align="right">1.3445491</td>
+<td align="right">-0.4836820</td>
 </tr>
 <tr class="even">
 <td align="right">1985</td>
-<td align="right">-0.2093490</td>
+<td align="right">-1.9257189</td>
 </tr>
 <tr class="odd">
 <td align="right">1990</td>
-<td align="right">0.8240783</td>
+<td align="right">0.4430651</td>
 </tr>
 </tbody>
 </table>
@@ -735,7 +742,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(df, <span class="dt
 <tbody>
 <tr class="odd">
 <td align="right">1980</td>
-<td align="right">1.1655773</td>
+<td align="right">-0.0601864</td>
 </tr>
 <tr class="even">
 <td align="right">1981</td>
@@ -747,15 +754,15 @@ knitr<span class="op">::</span><span class="kw">kable</span>(df, <span class="dt
 </tr>
 <tr class="even">
 <td align="right">1983</td>
-<td align="right">-0.2289347</td>
+<td align="right">0.7000182</td>
 </tr>
 <tr class="odd">
 <td align="right">1984</td>
-<td align="right">1.3445491</td>
+<td align="right">-0.4836820</td>
 </tr>
 <tr class="even">
 <td align="right">1985</td>
-<td align="right">-0.2093490</td>
+<td align="right">-1.9257189</td>
 </tr>
 <tr class="odd">
 <td align="right">1986</td>
@@ -775,7 +782,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(df, <span class="dt
 </tr>
 <tr class="odd">
 <td align="right">1990</td>
-<td align="right">0.8240783</td>
+<td align="right">0.4430651</td>
 </tr>
 </tbody>
 </table>
@@ -798,7 +805,7 @@ interpo &lt;-<span class="st"> </span><span class="kw">interpolate_data</span>(d
 </div>
 <div id="preparing-a-big.matrix" class="section level1">
 <h1>Preparing a <code>big.matrix</code></h1>
-<p>The dataframe is now ready for statistical modelling. When complete, i.e. when putting <code>colstokeep = NULL</code> rather than <code>colstokeep = 1:20</code> as above, it might be preferrable to use <code>big.matrix</code> object (see <code>bigmemory</code> documentation) rather than standard dataframes.</p>
+<p>The dataframe is now ready for statistical modelling. When complete, i.e. when putting <code>colstokeep = NULL</code> rather than <code>colstokeep = 1:100</code> as above, it might be preferrable to use <code>big.matrix</code> object (see <code>bigmemory</code> documentation) rather than standard dataframes.</p>
 <p>A drawback of using objects of class <code>big.matrix</code> is that it requires all data to be numeric. This means</p>
 <ul>
 <li>character vectors must be converted in numeric</li>
@@ -821,8 +828,9 @@ conversion &lt;-<span class="st"> </span><span class="kw">convert.character</spa
 <li><code>correspondance</code> is a list of all correspondance tables</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
-knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(conversion<span class="op">$</span>data[,<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]))</code></pre></div>
+knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(conversion<span class="op">$</span>data[,<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>]), <span class="dt">caption =</span> <span class="st">&quot;Dataframe with converted character vectors&quot;</span>)</code></pre></div>
 <table>
+<caption>Dataframe with converted character vectors</caption>
 <thead>
 <tr class="header">
 <th align="left">sex</th>
@@ -912,8 +920,9 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 </tr>
 </tbody>
 </table>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(conversion<span class="op">$</span>correspondance[[<span class="dv">1</span>]]))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(conversion<span class="op">$</span>correspondance[[<span class="dv">1</span>]]), <span class="dt">caption =</span> <span class="st">&quot;An example of a correspondance table&quot;</span>)</code></pre></div>
 <table>
+<caption>An example of a correspondance table</caption>
 <thead>
 <tr class="header">
 <th align="left">value</th>
@@ -975,8 +984,8 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 <tr class="odd">
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">1</td>
 <td align="right">0</td>
+<td align="right">1</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -994,13 +1003,13 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 </tr>
 <tr class="odd">
 <td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
 <td align="right">1</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="right">0</td>
@@ -1027,9 +1036,9 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
 <td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
 <td align="right">0</td>
 </tr>
 </tbody>
@@ -1067,6 +1076,8 @@ Y &lt;-<span class="st"> </span><span class="kw">as.big.matrix</span>(<span clas
 preprocess.model &lt;-<span class="st"> </span><span class="kw">performPreProcess</span>(Y, <span class="dt">groupingvar =</span> <span class="kw">c</span>(<span class="st">&quot;sex&quot;</span>,<span class="st">&quot;age&quot;</span>,<span class="st">&quot;Country_Transco&quot;</span>,
                                      <span class="st">&quot;region&quot;</span>,<span class="st">&quot;ethnicity&quot;</span>),
                   <span class="dt">labelvar =</span> <span class="st">&quot;year&quot;</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
+readr<span class="op">::</span><span class="kw">write_csv</span>(df_full2,<span class="dt">path =</span> <span class="kw">paste0</span>(datadir,<span class="st">&quot;/exampledf.csv&quot;</span>))</code></pre></div>
 </div>
 </div>
 

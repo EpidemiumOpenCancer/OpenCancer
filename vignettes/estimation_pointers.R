@@ -12,8 +12,8 @@ datadir <- paste0(getwd(),"/inst")
 
 ## ----readbigmatrix, include = TRUE,message = F, warning=F----------------
 
-url <- "https://github.com/linogaliana/OpenCancer/raw/master/vignettes/inst/exampledf.csv"
-download.file(url,destfile = paste0(datadir,"/exampledf.csv"),mode = "wb")
+url <- "https://github.com/EpidemiumOpenCancer/OpenCancer/raw/master/vignettes/inst/exampledf.csv"
+download.file(url,destfile = paste0(datadir,"/exampledf.csv"))
 
 X <- bigmemory::read.big.matrix(paste0(datadir,"/exampledf.csv"), header = TRUE)
 
