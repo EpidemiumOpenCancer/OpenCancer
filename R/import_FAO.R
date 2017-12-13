@@ -24,7 +24,7 @@
 #' df_ILO <- import_ILO(paste0(getwd(),"/other"))
 #' df_training <- import_training(path = datadir, colstokeep = NULL)}
 
-
+# Test2
 
 import_FAO <- function(path = getwd(),filename = "Faostat_Data.csv",
                        fromURL = FALSE,
