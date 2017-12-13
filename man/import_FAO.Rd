@@ -22,7 +22,7 @@ import_ILO(path = getwd(), filename = "Ilostat_Data.csv", fromURL = FALSE,
 
 import_training(path = getwd(), filename = "training.csv",
   fromURL = FALSE,
-  url = "http://qa.epidemium.cc/data/incidence_dataset/2017-10-10_dataset_core/training.txt",
+  url = "http://qa.epidemium.cc/data/shinyapp/training_IARC.csv",
   colstokeep = 1:10, cancercode = "C18")
 }
 \arguments{

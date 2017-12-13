@@ -2,8 +2,8 @@
 import_coding <- function(){
 
   codesILO <- readr::read_csv("http://qa.epidemium.cc/data/epidemiology_dataset/ilo_data/Ilostat_Indicators.csv") %>%
-    select(collection.label, indicator_full_code) %>%
-    rename(label = collection.label, code = indicator_full_code) %>%
+    select(indicator.label, indicator_full_code) %>%
+    rename(label = indicator.label, code = indicator_full_code) %>%
     dplyr::mutate(source = "ILO")
 
   codesWB <- readr::read_csv("http://qa.epidemium.cc/data/epidemiology_dataset/world_bank_data/WorldBank_Indicators.csv") %>%
@@ -21,3 +21,4 @@ import_coding <- function(){
 
   return(df)
 }
+
