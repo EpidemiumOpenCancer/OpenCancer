@@ -18,27 +18,34 @@ createcorlag <- function(df, refvar="incidence", groupingvar = c("sex","age","Co
 ){
 
   applylag <- function(df,xvar = "1012..5322", k){
-
+#between orders 1 and k, we keep the lags exceeding an absolute cross-corr. level with the target
     tempdf <- lapply(1:k, function(h) if (abs(cor(lag(as.numeric(unlist(df[,xvar])),h),as.numeric(unlist(df[,refvar])),use="pairwise.complete.obs"))>cross_cor_threshold){lag(as.numeric(unlist(df[,xvar])),h)} else {c()}
     )
+#we concatenate the columns and convert the data frame into a tibble
     tempdf <- dplyr::tbl_df(data.frame(do.call(cbind,tempdf)))
+#we build a list with appropriate names for the lags columns exceeding an absolute cross-corr. level with the target
     lags_kept <- lapply(1:k, function(h) if (abs(cor(lag(as.numeric(unlist(df[,xvar])),h),as.numeric(unlist(df[,refvar])),use="pairwise.complete.obs"))>cross_cor_threshold){h} else {c()}
     )
+#we concatenate the elements and convert the data frame into a tibble
     lags_kept <- dplyr::tbl_df(data.frame(do.call(cbind,lags_kept)))
+#we give appropriate names to the corresponding columns
     colnames(tempdf) <- paste0(xvar,"_lag",lags_kept)
     return(tempdf)
   }
 
   applylag.all <- function(df,k){
+    #we run applylag on every variable except those contained in labelvar
     tempdf <- lapply(setdiff(colnames(df),labelvar), function(y) applylag(df,y,k))
+    #we convert the dataframe into a tibble
     tempdf <- dplyr::tbl_df(do.call(cbind,tempdf))
     return(tempdf)
   }
 
   tempdf <- df %>% group_by_(.dots = groupingvar) %>%
+  #we group by groupingvar and use the function nest -which creates a tibble for each group resulting from groupingvar- in order to have isolated tibbles -whose names are data by default after nest operation- on which we can perform applylag.all easily (quicker than with a loop)
     tidyr::nest() %>%
     dplyr::mutate(x = purrr::map2(data,k,applylag.all))
-
+ #we unnest to insert the groupingvar features again and recover the initial structure, but with new columns: one for each significant lagged variable in terms of cross corr. with the target
   tempdf <- tempdf %>% tidyr::unnest()
 
 
