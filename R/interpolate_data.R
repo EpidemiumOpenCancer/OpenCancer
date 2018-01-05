@@ -22,9 +22,18 @@ interpolate_group <- function(missingdata, df,
   # ROWS THAT WILL BE CHANGED
   index <- df[,groupsvar] %>% ungroup() %>%
     dplyr::mutate(n = row_number()) %>%
-    filter_(paste(groupsvar,"==","\"",missingdata[i,groupsvar],
-                  "\"", sep = "",
-                  collapse = "&"))
+    #filter_(paste(groupsvar,"==","\"",missingdata[i,groupsvar],
+    filter_(paste(groupsvar,"==","\"",unlist(missingdata[i,groupsvar]), #without unlist it may produce a non desirable output, e.g.: 
+                  #> paste(groupsvar,"==","\"",unlist(missingdata[i,groupsvar]),
+                  #+       "\"", sep = "",
+                  #+       collapse = "&")
+                  #[1] "area==\"Afghanistan\"" EXPECTED RESULT
+                  #> paste(groupsvar,"==","\"",missingdata[i,groupsvar],
+                  #+       "\"", sep = "",
+                  #+       collapse = "&")
+                  #[1] "area==\"1\"" UNEXPECTED RESULT
+          "\"", sep = "",
+          collapse = "&"))
 
   # EXTRACT ROWS AND COLUMNS CONCERNED
   dftointerpolate <- df[index$n,
