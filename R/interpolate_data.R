@@ -44,7 +44,7 @@ interpolate_group <- function(missingdata, df,
   # ENSURE WE DON'T HAVE EMPTY COLUMNS OR COLUMNS WITH ONLY ONE ELEMENT
   dftointerpolate <- dftointerpolate[!check.emptycolumn(dftointerpolate)]
   dftointerpolate <- dftointerpolate[
-    ,sapply(names(dftointerpolate), function(nam) sum(!is.na(dftointerpolate[,nam])))>0
+    ,sapply(names(dftointerpolate), function(nam) sum(!is.na(dftointerpolate[,nam])))>1
     ]
 
   # ENSURE TO ONLY INTERPOLATE NUMERIC VECTORS
