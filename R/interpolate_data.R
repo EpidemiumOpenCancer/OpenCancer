@@ -44,12 +44,12 @@ interpolate_group <- function(missingdata, df,
   # ENSURE WE DON'T HAVE EMPTY COLUMNS OR COLUMNS WITH ONLY ONE ELEMENT
   dftointerpolate <- dftointerpolate[!check.emptycolumn(dftointerpolate)]
   dftointerpolate <- dftointerpolate[
-    ,sapply(names(dftointerpolate), function(nam) sum(!is.na(dftointerpolate[,nam])))>1
+    ,sapply(names(dftointerpolate), function(nam) sum(!is.na(dftointerpolate[,nam])))>0
     ]
 
   # ENSURE TO ONLY INTERPOLATE NUMERIC VECTORS
   dftointerpolate <- dftointerpolate[,which(
-    sapply(names(dftointerpolate), function(nam) is.numeric(unlist(df[,nam])))
+    sapply(names(dftointerpolate), function(nam) is.numeric(unlist(dftointerpolate[,nam])))
     )]
 
   # INTERPOLATE USING ZOO PACKAGE
@@ -63,6 +63,7 @@ interpolate_group <- function(missingdata, df,
   # NA = NOT USED FOR INTERPOLATION
   # 0  = NOT INTERPOLATED BUT USED TO FILL OTHER VALUES
   # 1  = INTERPOLATED
+  #we erase dftointerpolate to limit the memory load
   dftointerpolate <- sapply(1:ncol(dftointerpolate), function(j)
     as.numeric(is.na(dftointerpolate[,j])))
 
