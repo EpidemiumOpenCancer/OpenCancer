@@ -75,7 +75,7 @@ interpolate_group_complete <- function(missingdata, df,
     
     #COMPLETION WITH EXTENDED LOCF FOR CHARACTER AND FACTOR VARIABLES
     dfcompleted <- lapply(1:ncol(dftocomplete), function(j)
-      ImputeNA_factor(unlist(dftocomplete[,j]),fromLast=fromLast))
+      completed_LOCF(unlist(dftocomplete[,j]),fromLast=fromLast))
     dfcompleted <- tbl_df(do.call(cbind,dfcompleted))
     colnames(dfcompleted) <- colnames(dftocomplete)
     
@@ -120,7 +120,7 @@ interpolate_group_complete <- function(missingdata, df,
   } else if (ncol(dftocomplete)>0){
    
     dfcompleted <- lapply(1:ncol(dftocomplete), function(j)
-      ImputeNA_factor(unlist(dftocomplete[,j]),fromLast=fromLast))
+      completed_LOCF(unlist(dftocomplete[,j]),fromLast=fromLast))
     dfcompleted <- tbl_df(do.call(cbind,dfcompleted))
     colnames(dfcompleted) <- colnames(dftocomplete)
     
