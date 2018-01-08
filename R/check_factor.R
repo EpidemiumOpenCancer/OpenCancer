@@ -17,7 +17,10 @@ check.factor <- function(data,check.levels = F,
                          threshold = 10){
 
   # WHICH VARIABLES MOGHT BE FACTOR
-  factorcheck <- sapply(1:ncol(data), function(i) nrow(unique(data[,i])))
+  # factorcheck <- sapply(1:ncol(data), function(i) nrow(unique(data[,i])))
+  #CAN INDUCE ERROR : Error in check.factor(data) : (list) object 
+  #cannot be coerced to type #'double'
+  factorcheck <- sapply(1:ncol(data), function(i) length(unlist(unique(data[,i]))))
   factorcheck <- factorcheck < threshold
   factorcheck[factorcheck < threshold & sapply(data,class) == "character"] <-
     rep(FALSE,sum(sapply(data,class) == "character"))
