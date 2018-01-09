@@ -16,7 +16,7 @@
 #' # See \code{interpolate_data} source code
 
 interpolate_group_complete <- function(missingdata, df,
-                              i = 1, year.var = 'year',factor_threshold = 3,fromLast=F){
+                              i = 1, year.var = 'year',factor_threshold = 12,fromLast=F){
   
   # RECOVERING GROUPS
   groupsvar <- missingdata %>% group_vars()
@@ -56,7 +56,8 @@ interpolate_group_complete <- function(missingdata, df,
     sapply(names(dftoimpute), function(nam) is.numeric(unlist(dftoimpute[,nam])))
   )]
   
-  dftointerpolate <- dftointerpolate[,setdiff(names(dftointerpolate),names(which(sapply(check.factor(dftoimpute),class) 
+  #FACTOR VARIABLES MUST BE CHECKED FROM THE WHOLE DF BECAUSE IT WORKS WITH A THRESHOLD ON THE TOTAL NUMBER OF DISTINCT VALUES 
+  dftointerpolate <- dftointerpolate[,setdiff(names(dftointerpolate),names(which(sapply(check.factor(df,factor_threshold),class) 
     == "factor")))]
   
   # PUT CHARACTER AND FACTOR VARIABLES IN A COMPLEMENTARY DF WE HAVE TO COMPLETE
