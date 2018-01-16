@@ -59,7 +59,7 @@ big.model.FElasso <- function(X, yvar = "incidence",
                            return(
                              label_variables(big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
                                                           labelvar = c(labelvar, groupingvar),crossvalidation,
-                                                          nfolds, ncores, returnplot = returnplot))
+                                                          nfolds, ncores = ncores, returnplot = returnplot))
                            )
                          }
       } else{
@@ -69,7 +69,7 @@ big.model.FElasso <- function(X, yvar = "incidence",
                            return(
                              big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
                                           labelvar = c(labelvar, groupingvar),crossvalidation,
-                                          nfolds, ncores, returnplot = returnplot)
+                                          nfolds, ncores = ncores, returnplot = returnplot)
                            )
                          }
 
