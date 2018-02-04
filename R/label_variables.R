@@ -8,8 +8,11 @@ label_variables <- function(model){
 
   codes <- import_coding()
   if (class(model) %in% c("biglm","bigglm")){
-    model$names[model$names %in%
-                  addq(codes$code)] <- codes$label[addq(codes$code) %in% model$names]
+    #During importation of wholedf R added "X" in front of colnames's FAO data
+    codes$code[codes$source=="FAO"] <- paste0("X",codes$code[codes$source=="FAO"])
+    colsub <- codes %>% filter(code %in% model$names)
+    model$names <- plyr::mapvalues(model$names, from=colsub$code, to=colsub$label,
+                                        warn_missing = FALSE)
 
   } else if (class(model) %in% c('lm','glm')){
     #names(model$coefficients) <- stringr::str_replace_all(names(model$coefficients),"X.","")
