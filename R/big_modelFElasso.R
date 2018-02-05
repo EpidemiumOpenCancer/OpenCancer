@@ -54,7 +54,10 @@ big.model.FElasso <- function(X, yvar = "incidence",
 
       # ESTIMATE MODEL WITH PARALLELIZED GROUPS
       if (relabel){
-        model <- foreach(i = indices, .combine='list', .errorhandling = 'pass',
+        model <- foreach(i = indices, .combine='list',
+                         .multicombine = TRUE,
+                         .maxcombine = nrow(X),
+                         .errorhandling = 'pass',
                          .packages = c("bigmemory","biglasso","biganalytics")) %dopar% {
                            return(
                              label_variables(big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
@@ -64,7 +67,10 @@ big.model.FElasso <- function(X, yvar = "incidence",
                          }
       } else{
 
-        model <- foreach(i = indices, .combine='list', .errorhandling = 'pass',
+        model <- foreach(i = indices, .combine='list',
+                         .multicombine = TRUE,
+                         .maxcombine = nrow(X),
+                         .errorhandling = 'pass',
                          .packages = c("bigmemory","biglasso","biganalytics")) %dopar% {
                            return(
                              big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
@@ -81,7 +87,10 @@ big.model.FElasso <- function(X, yvar = "incidence",
 
       # SEQUENTIALLY RUN BY GROUP
       if (relabel){
-      model <- foreach(i = indices, .combine='list', .errorhandling = 'pass',
+      model <- foreach(i = indices, .combine='list',
+                       .multicombine = TRUE,
+                       .maxcombine = nrow(X),
+                       .errorhandling = 'pass',
                        .packages = c("bigmemory","biglasso","biganalytics")) %do% {
                          return(
                            label_variables(big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
@@ -91,7 +100,10 @@ big.model.FElasso <- function(X, yvar = "incidence",
                        }
       } else{
 
-        model <- foreach(i = indices, .combine='list', .errorhandling = 'pass',
+        model <- foreach(i = indices, .combine='list',
+                         .multicombine = TRUE,
+                         .maxcombine = nrow(X),
+                         .errorhandling = 'pass',
                          .packages = c("bigmemory","biglasso","biganalytics")) %do% {
                            return(
                              big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
@@ -104,13 +116,13 @@ big.model.FElasso <- function(X, yvar = "incidence",
 
     }
 
-    x <- list()
-    x[[1]] <- model[[2]]
-    for (i in 2:length(indices)){
-      eval(parse(text = paste0("x[[",i,"]] <- ",
-                               "model",paste(rep("[[1]]",i-1), collapse = ""),"[[2]]")))
-    }
-    model <- x
+    # x <- list()
+    # x[[1]] <- model[[2]]
+    # for (i in 2:length(indices)){
+    #   eval(parse(text = paste0("x[[",i,"]] <- ",
+    #                            "model",paste(rep("[[1]]",i-1), collapse = ""),"[[2]]")))
+    # }
+    # model <- x
 
   }
   return(model)
