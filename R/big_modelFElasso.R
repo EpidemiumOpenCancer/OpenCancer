@@ -1,6 +1,10 @@
 #' Perform LASSO for feature selection and create linear
 #' regression using selected features for big.matrix object
 #'
+#' Main estimation function of \code{OpenCancer} package. Perform
+#' feature elimination (FE) using lasso on \code{big.memory} object. Allows
+#' to perform such project on many models using groups
+#'
 #' @param X A big.matrix object
 #' @param yvar Name of the explained variable in \code{X}
 #' @param labelvar Names of variables that should be excluded from
@@ -19,9 +23,11 @@
 #' (\code{FALSE}) or variables labels (\code{TRUE}) in the regressions. If \code{TRUE},
 #' \code{import_label()} is used to upload data from the internet. It will fail if no
 #' internet connection is available.
-#' @return Linear model fitted with selected features. If \code{groupingvar} is
+#' @return A list of two elements: \code{results} and \code{indices}.
+#' \code{results} returns a series of linear model fitted with selected features. If \code{groupingvar} is
 #' not \code{NULL}, a nested dataframe is returned with linear regressions stored by
-#' groups
+#' groups. \code{indices} returns the lines that have been used to estimate the model stored in
+#' \code{results}.
 
 big.model.FElasso <- function(X, yvar = "incidence",
                               labelvar = c("cancer","age", "Country_Transco", "year", "area.x","area.y"),

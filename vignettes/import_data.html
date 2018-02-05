@@ -12,7 +12,7 @@
 
 <meta name="author" content="Lino Galiana" />
 
-<meta name="date" content="2017-12-02" />
+<meta name="date" content="2018-02-05" />
 
 <title>Building cancer dataset for Epidemium challenge</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Building cancer dataset for Epidemium challenge</h1>
 <h4 class="author"><em>Lino Galiana</em></h4>
-<h4 class="date"><em>2017-12-02</em></h4>
+<h4 class="date"><em>2018-02-05</em></h4>
 
 
 
@@ -437,6 +437,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 <th align="left">Country_Source</th>
 <th align="left">Country_Transco</th>
 <th align="left">Zonier</th>
+<th align="left">Continent</th>
 </tr>
 </thead>
 <tbody>
@@ -445,36 +446,42 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 <td align="left">Korea, Rep.</td>
 <td align="left">South Korea</td>
 <td align="left">B</td>
+<td align="left">Asia</td>
 </tr>
 <tr class="even">
 <td align="left">World Bank</td>
 <td align="left">Mexico</td>
 <td align="left">Mexico</td>
 <td align="left">D</td>
+<td align="left">Central America</td>
 </tr>
 <tr class="odd">
 <td align="left">World Bank</td>
 <td align="left">Peru</td>
 <td align="left">Peru</td>
 <td align="left">D</td>
+<td align="left">South America</td>
 </tr>
 <tr class="even">
 <td align="left">World Bank</td>
 <td align="left">Morocco</td>
 <td align="left">Morocco</td>
 <td align="left">E</td>
+<td align="left">Africa</td>
 </tr>
 <tr class="odd">
 <td align="left">World Bank</td>
 <td align="left">Costa Rica</td>
 <td align="left">Costa Rica</td>
 <td align="left">D</td>
+<td align="left">Central America</td>
 </tr>
 <tr class="even">
 <td align="left">World Bank</td>
 <td align="left">Chile</td>
 <td align="left">Chile</td>
 <td align="left">C</td>
+<td align="left">South America</td>
 </tr>
 </tbody>
 </table>
@@ -628,7 +635,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 pryr<span class="op">::</span><span class="kw">mem_change</span>(<span class="kw">rm</span>(df_ILO,df_FAO,df_WB,df_training,
    df_covariates))
-<span class="co">#&gt; -59.1 MB</span>
+<span class="co">#&gt; -59.7 MB</span>
 
 df_full &lt;-<span class="st"> </span>df_full <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(year<span class="op">&gt;=</span><span class="dv">1970</span>)</code></pre></div>
 </div>
@@ -640,7 +647,7 @@ df_full &lt;-<span class="st"> </span>df_full <span class="op">%&gt;%</span><spa
 <p>The <code>OpenCancer</code> package provides several functions dedicated to the construction of a clean training table. First of all, it might be a good idea to drop empty variables, if there are some</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 <span class="cf">if</span> (<span class="kw">sum</span>(<span class="kw">check.emptycolumn</span>(df_full))<span class="op">&gt;</span><span class="dv">0</span>) df_full &lt;-<span class="st"> </span><span class="kw">check.emptycolumn</span>(df_full)</code></pre></div>
-<p>More generally, we can inspect the share of missing values in a variable using <code>check.emptycolumn</code>. It might thus be a good idea to drop variables that have too much missing values since interpolation will show small precision with too much missing values. For instance, if we want to drop variables that have more of 40% of missing values (187 variables over 273), we do</p>
+<p>More generally, we can inspect the share of missing values in a variable using <code>check.emptycolumn</code>. It might thus be a good idea to drop variables that have too much missing values since interpolation will show small precision with too much missing values. For instance, if we want to drop variables that have more of 40% of missing values (187 variables over 276), we do</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 df_full<span class="op">$</span>ethnicity[<span class="kw">is.na</span>(df_full<span class="op">$</span>ethnicity)] &lt;-<span class="st"> &quot;All population&quot;</span>
 
@@ -662,12 +669,12 @@ df_full &lt;-<span class="st"> </span><span class="kw">check.factor</span>(df_fu
 }
 
 <span class="kw">dim</span>(df_full)
-<span class="co">#&gt; [1] 87172    86</span></code></pre></div>
+<span class="co">#&gt; [1] 87172    89</span></code></pre></div>
 </div>
 </div>
 <div id="interpolation" class="section level1">
 <h1>Interpolation</h1>
-<p>At this stage, <code>df_full</code> has 10336 complete rows over 86. Interpolating missing values might help to build robust statistical models. A series of function being part of the <code>OpenCancer</code> package have been specifically built to deal with missing values.</p>
+<p>At this stage, <code>df_full</code> has 10336 complete rows over 89. Interpolating missing values might help to build robust statistical models. A series of function being part of the <code>OpenCancer</code> package have been specifically built to deal with missing values.</p>
 <div id="ensuring-consistency-in-missing-values-treatment" class="section level2">
 <h2>Ensuring consistency in missing values treatment</h2>
 <p>A first useful function has been designed to identify potential miscoding issues. <code>convert_fakezero</code> has been designed to inspect variables where zeros might rather be <code>NAs</code>. We encapsulate the <code>convert_fakezero</code> call within a <code>mapvalues</code> call to print variables labels rather than codes that are obscure</p>
@@ -707,23 +714,23 @@ knitr<span class="op">::</span><span class="kw">kable</span>(df,<span class="dt"
 <tbody>
 <tr class="odd">
 <td align="right">1980</td>
-<td align="right">-0.0601864</td>
+<td align="right">-0.7267146</td>
 </tr>
 <tr class="even">
 <td align="right">1983</td>
-<td align="right">0.7000182</td>
+<td align="right">0.5509210</td>
 </tr>
 <tr class="odd">
 <td align="right">1984</td>
-<td align="right">-0.4836820</td>
+<td align="right">0.1636800</td>
 </tr>
 <tr class="even">
 <td align="right">1985</td>
-<td align="right">-1.9257189</td>
+<td align="right">1.1653539</td>
 </tr>
 <tr class="odd">
 <td align="right">1990</td>
-<td align="right">0.4430651</td>
+<td align="right">1.1272337</td>
 </tr>
 </tbody>
 </table>
@@ -742,7 +749,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(df, <span class="dt
 <tbody>
 <tr class="odd">
 <td align="right">1980</td>
-<td align="right">-0.0601864</td>
+<td align="right">-0.7267146</td>
 </tr>
 <tr class="even">
 <td align="right">1981</td>
@@ -754,15 +761,15 @@ knitr<span class="op">::</span><span class="kw">kable</span>(df, <span class="dt
 </tr>
 <tr class="even">
 <td align="right">1983</td>
-<td align="right">0.7000182</td>
+<td align="right">0.5509210</td>
 </tr>
 <tr class="odd">
 <td align="right">1984</td>
-<td align="right">-0.4836820</td>
+<td align="right">0.1636800</td>
 </tr>
 <tr class="even">
 <td align="right">1985</td>
-<td align="right">-1.9257189</td>
+<td align="right">1.1653539</td>
 </tr>
 <tr class="odd">
 <td align="right">1986</td>
@@ -782,7 +789,7 @@ knitr<span class="op">::</span><span class="kw">kable</span>(df, <span class="dt
 </tr>
 <tr class="odd">
 <td align="right">1990</td>
-<td align="right">0.4430651</td>
+<td align="right">1.1272337</td>
 </tr>
 </tbody>
 </table>
@@ -985,7 +992,27 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
 <td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -993,9 +1020,9 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 </tr>
 <tr class="even">
 <td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
 <td align="right">1</td>
-<td align="right">0</td>
-<td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
@@ -1005,11 +1032,11 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
 <td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">0</td>
 </tr>
 <tr class="even">
 <td align="right">0</td>
@@ -1019,26 +1046,6 @@ knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">he
 <td align="right">0</td>
 <td align="right">0</td>
 <td align="right">1</td>
-<td align="right">0</td>
-</tr>
-<tr class="odd">
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">0</td>
-</tr>
-<tr class="even">
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">0</td>
-<td align="right">1</td>
-<td align="right">0</td>
-<td align="right">0</td>
 <td align="right">0</td>
 </tr>
 </tbody>

@@ -7,16 +7,16 @@ knitr::opts_chunk$set(
 ## ----loadpackage, message=FALSE,warning=FALSE----------------------------
 
 library(OpenCancer)
-datadir <- paste0(getwd(),"/inst")
+datadir <- if (stringr::str_detect(getwd(),"/vignettes")) paste0(getwd(),"/inst") else paste0(getwd(),"/vignettes/inst")
 
 
-## ----readbigmatrix, include = TRUE,message = F, warning=F----------------
+## ---- include = TRUE,message = F, warning=F, eval = F--------------------
+#  
+#  url <- "https://github.com/EpidemiumOpenCancer/OpenCancer/raw/master/vignettes/inst/exampledf.csv"
+#  download.file(url,destfile = paste0(datadir,"/exampledf.csv"))
 
-url <- "https://github.com/EpidemiumOpenCancer/OpenCancer/raw/master/vignettes/inst/exampledf.csv"
-download.file(url,destfile = paste0(datadir,"/exampledf.csv"))
-
+## ----readbigmatrix, include = TRUE,message = F, warning=F, eval = T------
 X <- bigmemory::read.big.matrix(paste0(datadir,"/exampledf.csv"), header = TRUE)
-
 
 ## ---- include = FALSE, eval=FALSE----------------------------------------
 #  
@@ -32,7 +32,7 @@ summary(pooledLASSO$model)
 
 
 
-## ---- message = F, warning=F, fig.width = 10, fig.height=7---------------
+## ---- message = F, warning=F, fig.width = 8, fig.height=5----------------
 
 plot(pooledLASSO$model)
 
@@ -44,35 +44,28 @@ indices <- bigtabulate::bigsplit(X,groupingvar, splitcol=NA_real_)
 indices <- indices[5:8]
 
 # ESTIMATE MODEL WITH PARALLELIZED GROUPS
-model <- foreach(i = indices, .combine='list', .errorhandling = 'pass',
+model <- foreach(i = indices, .combine='list',
+                 .multicombine = TRUE,
+                 .maxcombine = nrow(X),
+                 .errorhandling = 'pass',
                        .packages = c("bigmemory","biglasso","biganalytics",
                                      'OpenCancer')) %do% {
                          return(
-                           big.simplelasso(bigmemory::deepcopy(X, rows = i),
+                           list(results = big.simplelasso(bigmemory::deepcopy(X, rows = i),
                                            yvar = 'incidence',
                                            labelvar = c("cancer", 'sex',
                                                         "Country_Transco", "year", "area.x", "area.y"),
-                                           crossvalidation = T, nfolds = 5, returnplot = F)
-                           
+                                           crossvalidation = T, nfolds = 5, returnplot = F),
+                                indices = i
+                           )
                          )
                        }
 
 ## ---- message = F, warning=F---------------------------------------------
 
-x <- list()
-x[[1]] <- model[[2]]
-for (i in 2:length(indices)){
-    eval(parse(text = paste0("x[[",i,"]] <- ",
-                             "model",paste(rep("[[1]]",i-1), collapse = ""),"[[2]]")))
-}
-model <- x
-
-
-## ---- message = F, warning=F---------------------------------------------
-
-summary(model[[1]]$model)
-summary(model[[2]]$model)
-summary(model[[3]]$model)
+summary(model[[1]]$results$model)
+summary(model[[2]]$results$model)
+summary(model[[3]]$results$model)
     
 
 ## ---- message = F, warning=F---------------------------------------------
@@ -91,6 +84,6 @@ DTsummary.biglm(pooledOLS)$modeltab
 #                                returnplot = F,
 #                             relabel = T)
 #  
-#  DTsummary.biglm(model[[2]])$coefftab
-#  DTsummary.biglm(model[[2]])$modeltab
+#  DTsummary.biglm(model[[38]]$results)$coefftab
+#  DTsummary.biglm(model[[38]]$results)$modeltab
 
