@@ -60,9 +60,11 @@ big.model.FElasso <- function(X, yvar = "incidence",
                          .errorhandling = 'pass',
                          .packages = c("bigmemory","biglasso","biganalytics")) %dopar% {
                            return(
-                             label_variables(big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
+                             list(results = label_variables(big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
                                                           labelvar = c(labelvar, groupingvar),crossvalidation,
-                                                          nfolds, ncores, returnplot = returnplot))
+                                                          nfolds, ncores, returnplot = returnplot)),
+                                  indices = i
+                             )
                            )
                          }
       } else{
@@ -73,9 +75,11 @@ big.model.FElasso <- function(X, yvar = "incidence",
                          .errorhandling = 'pass',
                          .packages = c("bigmemory","biglasso","biganalytics")) %dopar% {
                            return(
-                             big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
+                             list(results = big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
                                           labelvar = c(labelvar, groupingvar),crossvalidation,
-                                          nfolds, ncores, returnplot = returnplot)
+                                          nfolds, ncores, returnplot = returnplot),
+                                  indices = i
+                             )
                            )
                          }
 
@@ -93,9 +97,11 @@ big.model.FElasso <- function(X, yvar = "incidence",
                        .errorhandling = 'pass',
                        .packages = c("bigmemory","biglasso","biganalytics")) %do% {
                          return(
-                           label_variables(big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
+                           list(results = label_variables(big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
                                         labelvar = c(labelvar, groupingvar),crossvalidation,
-                                        nfolds, ncores = 1, returnplot = returnplot))
+                                        nfolds, ncores = 1, returnplot = returnplot)),
+                                indices = i
+                           )
                          )
                        }
       } else{
@@ -106,9 +112,11 @@ big.model.FElasso <- function(X, yvar = "incidence",
                          .errorhandling = 'pass',
                          .packages = c("bigmemory","biglasso","biganalytics")) %do% {
                            return(
-                             big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
+                             list(results = big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
                                           labelvar = c(labelvar, groupingvar),crossvalidation,
-                                          nfolds, ncores = 1, returnplot = returnplot)
+                                          nfolds, ncores = 1, returnplot = returnplot),
+                                  indices = i
+                             )
                            )
                          }
 
