@@ -16,27 +16,28 @@ knitr::opts_chunk$set(
 )
 ```
 
-This vignette is the occasion to explore the possibilities offered by the `bigmemory` package family to efficiently work with Epidemium data. 
+This vignette is the occasion to explore the possibilities offered by the `bigmemory` package family to efficiently work with Epidemium data. **For the moment, it is based on a sample of true data: results presented here should not be relied**
 
 We will assume data have been imported using the `OpenCancer` package (see dedicated vignette). A csv file has been stored in a subdirectory `inst` of the current working directory. To see an example, use `/vignettes/inst`, in the package directory. This example dataframe will show the interest of working with C++ pointers rather than dataframes imported in R memory (hence in RAM).
 
 ```{r loadpackage, message=FALSE,warning=FALSE}
 
 library(OpenCancer)
-datadir <- paste0(getwd(),"/inst")
+datadir <- if (stringr::str_detect(getwd(),"/vignettes")) paste0(getwd(),"/inst") else paste0(getwd(),"/vignettes/inst")
 
 ```
 
 
 # Variable selection by LASSO
 
-```{r readbigmatrix, include = TRUE,message = F, warning=F}
+```{r, include = TRUE,message = F, warning=F, eval = F}
 
 url <- "https://github.com/EpidemiumOpenCancer/OpenCancer/raw/master/vignettes/inst/exampledf.csv"
 download.file(url,destfile = paste0(datadir,"/exampledf.csv"))
+```
 
+```{r readbigmatrix, include = TRUE,message = F, warning=F, eval = T}
 X <- bigmemory::read.big.matrix(paste0(datadir,"/exampledf.csv"), header = TRUE)
-
 ```
 
 The matrix is not explicitly imported in R. `X` is a C++ pointer, a trick made possible by `bigmemory` package. As any `big.matrix` object, it is possible to access `X` content by importing it in the RAM. Working with pointers is a huge advantage in terms of memory:
@@ -63,7 +64,7 @@ summary(pooledLASSO$model)
 
 `labelvar` argument is here to exclude these variables from the set of features included in the LASSO. 
 
-```{r, message = F, warning=F, fig.width = 10, fig.height=7}
+```{r, message = F, warning=F, fig.width = 8, fig.height=5}
 
 plot(pooledLASSO$model)
 
@@ -80,48 +81,37 @@ indices <- bigtabulate::bigsplit(X,groupingvar, splitcol=NA_real_)
 indices <- indices[5:8]
 
 # ESTIMATE MODEL WITH PARALLELIZED GROUPS
-model <- foreach(i = indices, .combine='list', .errorhandling = 'pass',
+model <- foreach(i = indices, .combine='list',
+                 .multicombine = TRUE,
+                 .maxcombine = nrow(X),
+                 .errorhandling = 'pass',
                        .packages = c("bigmemory","biglasso","biganalytics",
                                      'OpenCancer')) %do% {
                          return(
-                           big.simplelasso(bigmemory::deepcopy(X, rows = i),
+                           list(results = big.simplelasso(bigmemory::deepcopy(X, rows = i),
                                            yvar = 'incidence',
                                            labelvar = c("cancer", 'sex',
                                                         "Country_Transco", "year", "area.x", "area.y"),
-                                           crossvalidation = T, nfolds = 5, returnplot = F)
-                           
+                                           crossvalidation = T, nfolds = 5, returnplot = F),
+                                indices = i
+                           )
                          )
                        }
 ```
 
-Results are stored as a list. To easily access its components, we need to arrange it a little bit
+Results are stored as a list and have the same order as `indices` groups. 
 
 ```{r, message = F, warning=F}
 
-x <- list()
-x[[1]] <- model[[2]]
-for (i in 2:length(indices)){
-    eval(parse(text = paste0("x[[",i,"]] <- ",
-                             "model",paste(rep("[[1]]",i-1), collapse = ""),"[[2]]")))
-}
-model <- x
-
-```
-
-Our three groups results is
-
-```{r, message = F, warning=F}
-
-summary(model[[1]]$model)
-summary(model[[2]]$model)
-summary(model[[3]]$model)
+summary(model[[1]]$results$model)
+summary(model[[2]]$results$model)
+summary(model[[3]]$results$model)
     
 ```
 
 # Feature selection and linear regression on selected features
 
 `big.model.FElasso` performs feature selection on a `big.matrix` and returns a linear regression with selected features. 
-
 
 ```{r, message = F, warning=F}
 # POOLED OLS
@@ -142,7 +132,7 @@ model <- big.model.FElasso(X,yvar = "incidence",
                               returnplot = F,
                            relabel = T)
 
-DTsummary.biglm(model[[2]])$coefftab
-DTsummary.biglm(model[[2]])$modeltab
+DTsummary.biglm(model[[38]]$results)$coefftab
+DTsummary.biglm(model[[38]]$results)$modeltab
 ```
 
