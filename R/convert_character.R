@@ -10,7 +10,7 @@
 #' is the modified dataframe. The second one (\code{correspondance})
 #' is a list of all transformation that have been applied
 
-convert.character2 <- function(df){
+convert.character <- function(df){
 
   nam <- which(sapply(df, is.character)|sapply(df,is.factor))
   if (length(nam) ==0) stop("Nothing to modify")
