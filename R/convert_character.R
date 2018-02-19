@@ -1,7 +1,7 @@
-#' Convert all character variables to numeric
+#' Convert all character variables and factor variables to numeric
 #'
 #' \code{convert.character} can be used to detect
-#' and convert all character vectors within a
+#' and convert all character and factor vectors within a
 #' dataframe to numeric. A correspondance table of all
 #' performed transmutation is also returned
 #'
@@ -12,7 +12,7 @@
 
 convert.character <- function(df){
 
-  nam <- which(sapply(df, is.character))
+  nam <- which(sapply(df, is.character)|sapply(df,is.factor))
   if (length(nam) ==0) stop("Nothing to modify")
   codesvar <- lapply(names(nam), function(i) encode.character(df,char.var = i))
   names(codesvar) <- names(nam)
