@@ -6,7 +6,6 @@
 #' to perform such project on many models using groups
 #'
 #' @param X A big.matrix object
-#' @param df_corr A list of the matches of the initial character variables 
 #' @param yvar Name of the explained variable in \code{X}
 #' @param labelvar Names of variables that should be excluded from
 #' the set of covariates
@@ -24,11 +23,11 @@
 #' (\code{FALSE}) or variables labels (\code{TRUE}) in the regressions. If \code{TRUE},
 #' \code{import_label()} is used to upload data from the internet. It will fail if no
 #' internet connection is available.
-#' @return A list of three elements: \code{results} and \code{indices} and \code{group}.
+#' @return A list of two elements: \code{results} and \code{indices}.
 #' \code{results} returns a series of linear model fitted with selected features. If \code{groupingvar} is
 #' not \code{NULL}, a nested dataframe is returned with linear regressions stored by
 #' groups. \code{indices} returns the lines that have been used to estimate the model stored in
-#' \code{results}.\code{group} returns the group that has been estimated.
+#' \code{results}.
 
 big.model.FElasso <- function(X, yvar = "incidence",
                               labelvar = c("cancer","age", "Country_Transco", "year", "area.x","area.y"),
@@ -68,13 +67,9 @@ big.model.FElasso <- function(X, yvar = "incidence",
                          .packages = c("bigmemory","biglasso","biganalytics")) %dopar% {
                            return(
                              list(results = label_variables(big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
-                                                                         labelvar = c(labelvar, groupingvar),crossvalidation,
-                                                                         nfolds, ncores, returnplot = returnplot)),
-                                  indices = i,
-                                  group   = sapply(1:length(X[i[1],groupingvar]), function(ngr) plyr::mapvalues(X[i[1],groupingvar][ngr],
-                                                                                                  from=df_corr[[names(X[i[1],groupingvar][ngr])]]$code, 
-                                                                                                  to=as.vector(df_corr[[names(X[i[1],groupingvar][ngr])]]$value),
-                                                warn_missing = FALSE))
+                                                          labelvar = c(labelvar, groupingvar),crossvalidation,
+                                                          nfolds, ncores, returnplot = returnplot)),
+                                  indices = i
                              )
                            )
                          }
@@ -87,13 +82,9 @@ big.model.FElasso <- function(X, yvar = "incidence",
                          .packages = c("bigmemory","biglasso","biganalytics")) %dopar% {
                            return(
                              list(results = big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
-                                                         labelvar = c(labelvar, groupingvar),crossvalidation,
-                                                         nfolds, ncores, returnplot = returnplot),
-                                  indices = i,
-                                  group   = sapply(1:length(X[i[1],groupingvar]), function(ngr) plyr::mapvalues(X[i[1],groupingvar][ngr],
-                                                                                                from=df_corr[[names(X[i[1],groupingvar][ngr])]]$code, 
-                                                                                                to=as.vector(df_corr[[names(X[i[1],groupingvar][ngr])]]$value),
-                                                warn_missing = FALSE))
+                                          labelvar = c(labelvar, groupingvar),crossvalidation,
+                                          nfolds, ncores, returnplot = returnplot),
+                                  indices = i
                              )
                            )
                          }
@@ -106,23 +97,19 @@ big.model.FElasso <- function(X, yvar = "incidence",
 
       # SEQUENTIALLY RUN BY GROUP
       if (relabel){
-        model <- foreach(i = indices, .combine='list',
-                         .multicombine = TRUE,
-                         .maxcombine = nrow(X),
-                         .errorhandling = 'pass',
-                         .packages = c("bigmemory","biglasso","biganalytics")) %do% {
-                           return(
-                             list(results = label_variables(big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
-                                                                         labelvar = c(labelvar, groupingvar),crossvalidation,
-                                                                         nfolds, ncores = 1, returnplot = returnplot)),
-                                  indices = i,
-                                  group   = sapply(1:length(X[i[1],groupingvar]), function(ngr) plyr::mapvalues(X[i[1],groupingvar][ngr],
-                                                                                                from=df_corr[[names(X[i[1],groupingvar][ngr])]]$code, 
-                                                                                                to=as.vector(df_corr[[names(X[i[1],groupingvar][ngr])]]$value),
-                                                warn_missing = FALSE))
-                             )
+      model <- foreach(i = indices, .combine='list',
+                       .multicombine = TRUE,
+                       .maxcombine = nrow(X),
+                       .errorhandling = 'pass',
+                       .packages = c("bigmemory","biglasso","biganalytics")) %do% {
+                         return(
+                           list(results = label_variables(big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
+                                        labelvar = c(labelvar, groupingvar),crossvalidation,
+                                        nfolds, ncores = 1, returnplot = returnplot)),
+                                indices = i
                            )
-                         }
+                         )
+                       }
       } else{
 
         model <- foreach(i = indices, .combine='list',
@@ -132,13 +119,9 @@ big.model.FElasso <- function(X, yvar = "incidence",
                          .packages = c("bigmemory","biglasso","biganalytics")) %do% {
                            return(
                              list(results = big.FE.lasso(bigmemory::deepcopy(X, rows = i), yvar = "incidence",
-                                                         labelvar = c(labelvar, groupingvar),crossvalidation,
-                                                         nfolds, ncores = 1, returnplot = returnplot),
-                                  indices = i,
-                                  group   = sapply(1:length(X[i[1],groupingvar]), function(ngr) plyr::mapvalues(X[i[1],groupingvar][ngr],
-                                                                                                from=df_corr[[names(X[i[1],groupingvar][ngr])]]$code, 
-                                                                                                to=as.vector(df_corr[[names(X[i[1],groupingvar][ngr])]]$value),
-                                                warn_missing = FALSE))
+                                          labelvar = c(labelvar, groupingvar),crossvalidation,
+                                          nfolds, ncores = 1, returnplot = returnplot),
+                                  indices = i
                              )
                            )
                          }
