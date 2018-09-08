@@ -421,11 +421,11 @@ df_label &lt;-<span class="st"> </span><span class="kw">import_coding</span>()</
 </div>
 <div id="importing-joining-keys" class="section level2">
 <h2>Importing joining keys</h2>
-<p>To ensure data will be consistently merged, we import a file called <code>creation zonier.xls</code> file, stored in <code>Github</code>. All countries in the FAO, ILO and World Bank database should thus be assigned a unique and consistent key, a necessary step before merging dataframes.</p>
+<p>To ensure data will be consistently merged, we import a file called <code>creation_zonier.xls</code> file, stored in <code>Github</code>. All countries in the FAO, ILO and World Bank database should thus be assigned a unique and consistent key, a necessary step before merging dataframes.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 link &lt;-<span class="st"> &quot;https://github.com/EpidemiumOpenCancer/OpenCancer/raw/master/vignettes/inst/creation%20zonier.xls&quot;</span>
-<span class="kw">download.file</span>(link,<span class="dt">destfile =</span> <span class="kw">paste0</span>(datadir,<span class="st">&quot;/creation zonier.xls&quot;</span>),<span class="dt">mode =</span> <span class="st">&quot;wb&quot;</span>)
-codes &lt;-<span class="st"> </span>readxl<span class="op">::</span><span class="kw">read_excel</span>(<span class="dt">path =</span> <span class="kw">paste0</span>(datadir,<span class="st">&quot;/creation zonier.xls&quot;</span>),
+<span class="kw">download.file</span>(link,<span class="dt">destfile =</span> <span class="kw">paste0</span>(datadir,<span class="st">&quot;/creation_zonier.xls&quot;</span>),<span class="dt">mode =</span> <span class="st">&quot;wb&quot;</span>)
+codes &lt;-<span class="st"> </span>readxl<span class="op">::</span><span class="kw">read_excel</span>(<span class="dt">path =</span> <span class="kw">paste0</span>(datadir,<span class="st">&quot;/creation_zonier.xls&quot;</span>),
                             <span class="dt">sheet =</span> <span class="st">&quot;Transco_Country&quot;</span>)
 
 knitr<span class="op">::</span><span class="kw">kable</span>(<span class="kw">head</span>(codes), <span class="dt">caption =</span> <span class="st">'Coding convention for countries'</span>)</code></pre></div>

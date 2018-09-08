@@ -50,8 +50,8 @@ df_label <- import_coding()
 ## ---- message=FALSE,warning=FALSE----------------------------------------
 
 link <- "https://github.com/EpidemiumOpenCancer/OpenCancer/raw/master/vignettes/inst/creation%20zonier.xls"
-download.file(link,destfile = paste0(datadir,"/creation zonier.xls"),mode = "wb")
-codes <- readxl::read_excel(path = paste0(datadir,"/creation zonier.xls"),
+download.file(link,destfile = paste0(datadir,"/creation_zonier.xls"),mode = "wb")
+codes <- readxl::read_excel(path = paste0(datadir,"/creation_zonier.xls"),
                             sheet = "Transco_Country")
 
 knitr::kable(head(codes), caption = 'Coding convention for countries')

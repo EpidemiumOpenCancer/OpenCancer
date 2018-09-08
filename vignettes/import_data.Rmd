@@ -109,13 +109,13 @@ It requires an internet connection since files are imported from `Epidemium` web
 
 ## Importing joining keys
 
-To ensure data will be consistently merged, we import a file called `creation zonier.xls` file, stored in `Github`. All countries in the FAO, ILO and World Bank database should thus be assigned a unique and consistent key, a necessary step before merging dataframes.
+To ensure data will be consistently merged, we import a file called `creation_zonier.xls` file, stored in `Github`. All countries in the FAO, ILO and World Bank database should thus be assigned a unique and consistent key, a necessary step before merging dataframes.
 
 ```{r, message=FALSE,warning=FALSE}
 
 link <- "https://github.com/EpidemiumOpenCancer/OpenCancer/raw/master/vignettes/inst/creation%20zonier.xls"
-download.file(link,destfile = paste0(datadir,"/creation zonier.xls"),mode = "wb")
-codes <- readxl::read_excel(path = paste0(datadir,"/creation zonier.xls"),
+download.file(link,destfile = paste0(datadir,"/creation_zonier.xls"),mode = "wb")
+codes <- readxl::read_excel(path = paste0(datadir,"/creation_zonier.xls"),
                             sheet = "Transco_Country")
 
 knitr::kable(head(codes), caption = 'Coding convention for countries')

@@ -13,7 +13,7 @@
 #'
 #' @return A dataframe with unique id keys
 #' @examples \dontrun{
-#' codes <- readxl::read_excel(path = paste0(datadir,"/creation zonier.xls"),
+#' codes <- readxl::read_excel(path = paste0(datadir,"/creation_zonier.xls"),
 #' sheet = "Transco_Country")
 #' # MAPPING IDs TO THEIR VALUES
 #' df_FAO = matchkeys(df_FAO,codes)
