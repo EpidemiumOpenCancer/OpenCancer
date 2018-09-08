@@ -11,6 +11,12 @@ vignettes/*.html linguist-documentation
 *.R text
 *.Rd text
 *.Rmd text
+*.less text
+*.svg text
+*.html text
+*.ts text
+*.css text
+*.js text
 
 # Declare files that will always have CRLF line endings on checkout.
 *.sln text eol=crlf
@@ -18,4 +24,4 @@ vignettes/*.html linguist-documentation
 # Denote all files that are truly binary and should not be modified.
 *.png binary
 *.jpg binary
-*.xls
+*.xls binary
